@@ -28,8 +28,8 @@ def main():
 
     # Gerar e salvar nuvem de palavras
     wc_generator = WordCloudGenerator()
-    wordcloud = wc_generator.generate(analyzer.word_frequencies)
-    wordcloud.to_file('nuvem_palavras.png')
+    wc_generator.show(analyzer.word_frequencies)  # Exibe a nuvem na tela
+    wc_generator.generate(analyzer.word_frequencies).to_file('nuvem_palavras.png')  # Salva o arquivo
 
     # Criar e salvar gráfico de frequência
     viz = FrequencyVisualizer()
