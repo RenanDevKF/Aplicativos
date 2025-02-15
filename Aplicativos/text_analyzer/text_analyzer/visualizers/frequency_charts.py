@@ -33,9 +33,12 @@ class FrequencyVisualizer:
         ).nlargest(top_n, 'Frequência')
         
         plt.figure(figsize=(10, 6))
-        plt.bar(df['Palavra'], df['Frequência'])
+        plt.bar(df['Palavra'], df['Frequência'], color='royalblue')
         plt.xticks(rotation=45)
         plt.title(f'Top {top_n} Palavras Mais Frequentes')
+        plt.xlabel("Palavras")
+        plt.ylabel("Frequência")
+        plt.grid(axis="y", linestyle="--", alpha=0.7)
         plt.tight_layout()
         return plt
     
