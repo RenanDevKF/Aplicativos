@@ -1,0 +1,6 @@
+*.png
+*.jpg
+grafico*
+nuvem*
+__pycache__/
+*.pyc
