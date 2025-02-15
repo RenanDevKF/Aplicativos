@@ -4,7 +4,12 @@ from nltk.corpus import stopwords
 import nltk
 
 # Baixa as stopwords caso necessário
-nltk.download('stopwords')
+try:
+    nltk.download('stopwords', quiet=True)
+    STOP_WORDS = set(stopwords.words("portuguese"))
+except Exception as e:
+    STOP_WORDS = set()
+    print(f"Aviso: Não foi possível carregar as stopwords. Erro: {e}")
 
 def clean_text(text: str, remove_stopwords: bool = True) -> List[str]:
     """
@@ -17,14 +22,26 @@ def clean_text(text: str, remove_stopwords: bool = True) -> List[str]:
 
     Returns:
         List[str]: Lista de palavras limpas extraídas do texto.
+
+    Raises:
+        TypeError: Se `text` não for uma string.
+        ValueError: Se `text` estiver vazio.
+
+    Exemplo:
+        > clean_text("Olá, mundo! Python é incrível.")
+        ['ola', 'mundo', 'python', 'e', 'incrivel']
     """
+    if not isinstance(text, str):
+        raise TypeError("O parâmetro 'text' deve ser uma string.")
+    
+    if not text.strip():
+        raise ValueError("O texto fornecido está vazio.")
+
     text = text.lower()  # Converte para minúsculas
     text = re.sub(r'[^\w\s]', '', text)  # Remove pontuação
     words = text.split()  # Divide o texto em palavras
     
-    if remove_stopwords:
-        stop_words = set(stopwords.words("portuguese"))
-        words = [word for word in words if word not in stop_words]
+    if remove_stopwords and STOP_WORDS:
+        words = [word for word in words if word not in STOP_WORDS]
 
     return words
-
