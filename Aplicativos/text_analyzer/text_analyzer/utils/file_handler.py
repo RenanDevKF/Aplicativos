@@ -15,18 +15,36 @@ def read_file(file_path: Union[str, TextIO]) -> str:
         str: Conteúdo do arquivo como string.
 
     Raises:
+        TypeError: Se `file_path` não for um `str` ou `TextIO`.
         FileNotFoundError: Se o caminho do arquivo não existir.
         IOError: Se houver erro ao abrir ou ler o arquivo.
+        ValueError: Se o arquivo estiver vazio.
 
     Exemplo:
         > content = read_file("exemplo.txt")
         > print(content)  # Exibe o conteúdo do arquivo
+
+    Nota:
+        Se um arquivo vazio for passado, a função levantará um `ValueError`.
+        Se um erro inesperado ocorrer durante a leitura do arquivo, será levantado um `IOError`.
     """
-    if isinstance(file_path, str):
-        if not os.path.exists(file_path):
-            raise FileNotFoundError(f"O arquivo '{file_path}' não foi encontrado.")
+    if not isinstance(file_path, (str, TextIO)):
+        raise TypeError("Erro: O parâmetro 'file_path' deve ser um caminho de arquivo (str) ou um objeto file-like (TextIO).")
+
+    try:
+        if isinstance(file_path, str):
+            if not os.path.exists(file_path):
+                raise FileNotFoundError(f"Erro: O arquivo '{file_path}' não foi encontrado.")
+
+            with open(file_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+        else:
+            content = file_path.read()
         
-        with open(file_path, 'r', encoding='utf-8') as f:
-            return f.read()
-    
-    return file_path.read()
+        if not content.strip():
+            raise ValueError(f"Erro: O arquivo '{file_path}' está vazio.")
+
+        return content
+
+    except IOError as e:
+        raise IOError(f"Erro ao abrir ou ler o arquivo: {str(e)}")
