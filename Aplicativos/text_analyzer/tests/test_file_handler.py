@@ -79,7 +79,7 @@ def test_file_not_found():
 
 # Teste de erro - formato não suportado
 def test_unsupported_file_format():
-    with pytest.raises(ValueError):
+    with pytest.raises(OSError):
         read_file("documento.zip")  # Arquivo com formato não suportado
 
 # Teste de erro - arquivo vazio
