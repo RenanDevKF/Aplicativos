@@ -43,8 +43,13 @@ def temp_txt_file():
 
 # Teste de leitura de arquivo PDF real
 def test_read_pdf_file():
-    file_path = "text_analyzer/test_files/curriulo_test_ramiro.pdf"  # Seu arquivo PDF real
-    content = read_file(file_path)
+    test_file = os.path.join(os.path.dirname(__file__), '..', 'test_files', 'curriculo_test_ramiro.pdf')  # Caminho relativo
+    print(f"Caminho do arquivo PDF: {test_file}")  # Verifique o caminho do arquivo
+    
+    # Verifique se o arquivo realmente existe
+    assert os.path.exists(test_file), f"O arquivo {test_file} não foi encontrado."
+    
+    content = read_file(test_file)
     assert "Vaga para Desenvolvedor Python" in content
     assert "Django" in content
     assert "Flask" in content
