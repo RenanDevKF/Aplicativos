@@ -1,13 +1,14 @@
 from typing import Union, TextIO
 import os
 import pdfplumber
+import chardet  # Importando a biblioteca chardet para detectar a codificação
 
 def read_file(file_path: Union[str, TextIO]) -> str:
     """
     Lê um arquivo de texto ou PDF e retorna seu conteúdo como uma string.
 
     A função aceita tanto um caminho de arquivo (`str`) quanto um objeto file-like (`TextIO`).
-    Se for passado um caminho de arquivo `.txt`, o arquivo será aberto e lido com codificação UTF-8.
+    Se for passado um caminho de arquivo `.txt`, o arquivo será aberto e lido utilizando a codificação detectada automaticamente.
     Se for passado um arquivo `.pdf`, o texto será extraído utilizando a biblioteca `pdfplumber`.
 
     Args:
@@ -20,17 +21,18 @@ def read_file(file_path: Union[str, TextIO]) -> str:
         TypeError: Se `file_path` não for um `str` ou `TextIO`.
         FileNotFoundError: Se o caminho do arquivo não existir.
         IOError: Se houver erro ao abrir ou ler o arquivo.
-        ValueError: Se o arquivo estiver vazio ou no formato não suportado.
-        ValueError: Se o conteúdo do PDF não puder ser extraído.
+        ValueError: Se o arquivo estiver vazio, no formato não suportado ou se não for possível extrair texto de um PDF.
+        UnicodeDecodeError: Se não for possível decodificar o arquivo `.txt` com a codificação detectada.
 
     Exemplo:
         > content = read_file("exemplo.txt")
         > print(content)  # Exibe o conteúdo do arquivo
 
     Nota:
-        Se um arquivo vazio for passado, a função levantará um `ValueError`.
-        Se um erro inesperado ocorrer durante a leitura do arquivo, será levantado um `IOError`.
-        Se o arquivo for PDF e não puder ser extraído, um erro será levantado.
+        - Se um arquivo vazio for passado, a função levantará um `ValueError`.
+        - Se um erro inesperado ocorrer durante a leitura do arquivo, será levantado um `IOError`.
+        - Se o arquivo for PDF e não puder ser extraído, um erro será levantado.
+        - A codificação do arquivo `.txt` será automaticamente detectada antes de ser lido.
     """
     if not isinstance(file_path, (str, TextIO)):
         raise TypeError("Erro: O parâmetro 'file_path' deve ser um caminho de arquivo (str) ou um objeto file-like (TextIO).")
@@ -44,7 +46,14 @@ def read_file(file_path: Union[str, TextIO]) -> str:
             _, ext = os.path.splitext(file_path)
             
             if ext.lower() == ".txt":
-                with open(file_path, 'r', encoding='utf-8') as f:
+                # Detectando a codificação do arquivo
+                with open(file_path, 'rb') as f:
+                    raw_data = f.read()
+                    result = chardet.detect(raw_data)
+                    encoding = result['encoding']  # Codificação detectada
+
+                # Lendo o arquivo com a codificação detectada
+                with open(file_path, 'r', encoding=encoding) as f:
                     content = f.read()
 
             # Se o arquivo for .pdf
