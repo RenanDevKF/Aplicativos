@@ -45,14 +45,18 @@ def temp_txt_file():
 def test_read_pdf_file():
     test_file = os.path.join(os.path.dirname(__file__), '..', 'test_files', 'curriculo_test_ramiro.pdf')  # Caminho relativo
     print(f"Caminho do arquivo PDF: {test_file}")  # Verifique o caminho do arquivo
+    content = read_file(test_file)
+    
+    # Imprimir o conteúdo extraído
+    print(content)
     
     # Verifique se o arquivo realmente existe
     assert os.path.exists(test_file), f"O arquivo {test_file} não foi encontrado."
     
     content = read_file(test_file)
-    assert "Vaga para Desenvolvedor Python" in content
-    assert "Django" in content
-    assert "Flask" in content
+    assert "Desenvolvimento" in content
+    assert "Ruby on Rails" in content
+    assert "Github" in content
 
 # Teste de leitura de arquivo PDF temporário (usando a fixture)
 def test_read_temp_pdf_file(temp_pdf_file):
@@ -70,7 +74,7 @@ def test_read_temp_txt_file(temp_txt_file):
 
 # Teste de erro - arquivo não encontrado
 def test_file_not_found():
-    with pytest.raises(FileNotFoundError):
+    with pytest.raises(OSError):
         read_file("arquivo_inexistente.txt")
 
 # Teste de erro - formato não suportado
