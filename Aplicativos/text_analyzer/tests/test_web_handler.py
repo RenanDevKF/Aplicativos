@@ -32,8 +32,12 @@ def test_fetch_webpage_text_error_status(mocker):
     mocker.patch("requests.get", return_value=mock_response)
 
     result = fetch_webpage_text("http://exemplo.com")
-    assert "Página não encontrada" in result
-    assert result == "Erro ao acessar a página"
+    
+    # Verificando se a resposta contém a descrição do erro de status
+    assert "404" in result  # Verifica se o código de status 404 está na resposta
+    assert "Página não encontrada" in result  # Verifica se a descrição do erro está na resposta
+
+    
 
 def test_fetch_webpage_text_invalid_html(mocker):
     # Simulando uma resposta com HTML malformado
