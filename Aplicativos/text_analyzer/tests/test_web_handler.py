@@ -22,7 +22,7 @@ def test_fetch_webpage_text_empty_response(mocker):
     mocker.patch("requests.get", return_value=mock_response)
 
     result = fetch_webpage_text("http://exemplo.com")
-    assert result == ""  # Espera que a função retorne uma string vazia
+    assert result == "Nenhum texto relevante encontrado na página."  # Espera a mensagem padrão
 
 def test_fetch_webpage_text_error_status(mocker):
     # Simulando uma resposta com erro HTTP (404)
