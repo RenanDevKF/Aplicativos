@@ -38,6 +38,7 @@ def clean_text(text: str, remove_stopwords: bool = True) -> List[str]:
         raise ValueError("O texto fornecido está vazio.")
 
     text = text.lower()  # Converte para minúsculas
+    text = text.replace("/", " ")  # Substituir '/' por espaço ao invés de removê-lo
     text = re.sub(r'[^\w\s]', '', text)  # Remove pontuação
     words = text.split()  # Divide o texto em palavras
     
