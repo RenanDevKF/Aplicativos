@@ -32,8 +32,12 @@ def fetch_webpage_text(url: str) -> str:
 
     try:
         response = requests.get(url, timeout=10)
-        response.raise_for_status()  # Levanta um erro se o status HTTP for um código de erro (404, 500, etc.)
+        
+        # Verificando se a resposta tem código de erro
+        if response.status_code != 200:
+            return f"Erro HTTP ao acessar a página '{url}': {response.status_code} {response.text}"
 
+        # Continuando o processamento normal caso o status seja 200
         soup = BeautifulSoup(response.text, "html.parser")
         paragraphs = soup.find_all(["p", "div", "span"])  # Busca por parágrafos, divs e spans
 
@@ -41,12 +45,12 @@ def fetch_webpage_text(url: str) -> str:
         text = "\n".join([p.get_text(strip=True) for p in paragraphs])
 
         if not text.strip():
-            return "Nenhum texto relevante encontrado na página."  # Retorna mensagem padrão em vez de levantar exceção
+            return "Nenhum texto relevante encontrado na página."
 
         return text.strip()
 
     except requests.RequestException as e:
-        raise requests.RequestException(f"Erro ao acessar a página '{url}': {e}")
+        return f"Erro HTTP ao acessar a página '{url}': {e.response.status_code} {e.response.text}"
 
     except ValueError as e:
         raise ValueError(f"Erro ao processar o conteúdo da página '{url}': {e}")
