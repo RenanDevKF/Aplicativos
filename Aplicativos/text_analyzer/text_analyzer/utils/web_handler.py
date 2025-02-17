@@ -49,8 +49,12 @@ def fetch_webpage_text(url: str) -> str:
 
         return text.strip()
 
+    except requests.exceptions.Timeout:
+        # Levanta a exceção Timeout para o teste
+        raise requests.exceptions.Timeout(f"Erro: A requisição para '{url}' excedeu o tempo limite.")
+
     except requests.RequestException as e:
-        return f"Erro HTTP ao acessar a página '{url}': {e.response.status_code} {e.response.text}"
+        return f"Erro HTTP ao acessar a página '{url}': {e}"
 
     except ValueError as e:
         raise ValueError(f"Erro ao processar o conteúdo da página '{url}': {e}")
