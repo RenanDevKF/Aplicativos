@@ -41,7 +41,7 @@ def fetch_webpage_text(url: str) -> str:
         text = "\n".join([p.get_text(strip=True) for p in paragraphs])
 
         if not text.strip():
-            raise ValueError(f"Erro: Nenhum texto relevante encontrado na página '{url}'.")
+            return "Nenhum texto relevante encontrado na página."  # Retorna mensagem padrão em vez de levantar exceção
 
         return text.strip()
 
@@ -53,4 +53,3 @@ def fetch_webpage_text(url: str) -> str:
 
     except Exception as e:
         raise Exception(f"Erro inesperado ao acessar ou processar a página '{url}': {e}")
-
