@@ -41,4 +41,40 @@ class CandidateMatcher:
         # Adicionando recomendações específicas
         resultado['recomendacoes'] = self._gerar_recomendacoes(resultado)
         
-        return resultado    
+        return resultado
+    
+    def _gerar_recomendacoes(self, resultado: Dict) -> List[str]:
+        """
+        Gera recomendações personalizadas com base na análise
+        
+        Args:
+            resultado: Dicionário com resultados da análise
+            
+        Returns:
+            Lista de recomendações para o candidato
+        """
+        recomendacoes = []
+        
+        # Recomendações baseadas no nível de compatibilidade
+        if resultado['nivel_match'] == 'Alto':
+            recomendacoes.append("Seu perfil é bastante compatível com esta vaga. Considere destacar suas experiências com: " + 
+                               ", ".join(resultado['habilidades_correspondentes'][:5]))
+        elif resultado['nivel_match'] == 'Médio':
+            recomendacoes.append("Você tem compatibilidade moderada. Para aumentar suas chances, enfatize suas experiências com: " + 
+                               ", ".join(resultado['habilidades_correspondentes'][:3]))
+            if resultado['requisitos_faltantes']:
+                recomendacoes.append("Considere adquirir ou destacar conhecimentos em: " + 
+                                   ", ".join(resultado['requisitos_faltantes'][:3]))
+        else:
+            if resultado['habilidades_correspondentes']:
+                recomendacoes.append("Destaque estas habilidades compatíveis: " + 
+                                   ", ".join(resultado['habilidades_correspondentes'][:3]))
+            recomendacoes.append("Para aumentar sua compatibilidade, busque desenvolver conhecimentos em: " + 
+                               ", ".join(resultado['requisitos_faltantes'][:5]))
+        
+        # Destaque de diferenciais
+        if resultado['diferenciais_candidato'] and len(resultado['diferenciais_candidato']) > 2:
+            recomendacoes.append("Seus diferenciais que podem ser destacados: " + 
+                               ", ".join(resultado['diferenciais_candidato'][:3]))
+        
+        return recomendacoes
