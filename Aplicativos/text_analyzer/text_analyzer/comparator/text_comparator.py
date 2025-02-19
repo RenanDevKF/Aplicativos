@@ -9,9 +9,7 @@ class TextComparator:
     """
     Classe responsável por comparar textos e calcular métricas de similaridade
     """
-    def __init__(self):
-        self.analyzer = TextAnalyzer()
-        
+            
     def preprocess_texts(self, text1: str, text2: str) -> Tuple[List[str], List[str]]:
         """
         Pré-processa dois textos para comparação
