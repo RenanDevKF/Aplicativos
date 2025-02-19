@@ -55,7 +55,6 @@ class TextComparator:
         
         return intersection / union
     
-    import numpy as np
 from collections import Counter
 
 def cosine_similarity(self, text1: str, text2: str) -> float:
