@@ -159,4 +159,34 @@ def get_unique_terms(self, text1: str, text2: str, from_first: bool = True, top_
         # Ordenando por frequência
         sorted_terms = sorted(unique_counter.items(), key=lambda x: x[1], reverse=True)
         
-        return [term for term, count in sorted_terms[:top_n]]   
+        return [term for term, count in sorted_terms[:top_n]]
+    
+def compare_documents(self, doc1: str, doc2: str) -> Dict:
+        """
+        Realiza uma comparação completa entre dois documentos
+        
+        Args:
+            doc1: Primeiro documento
+            doc2: Segundo documento
+            
+        Returns:
+            Dicionário com múltiplas métricas de similaridade e análises comparativas
+        """
+        result = {
+            'jaccard_similarity': self.jaccard_similarity(doc1, doc2),
+            'cosine_similarity': self.cosine_similarity(doc1, doc2),
+            'common_terms': self.get_common_terms(doc1, doc2),
+            'unique_terms_doc1': self.get_unique_terms(doc1, doc2, from_first=True),
+            'unique_terms_doc2': self.get_unique_terms(doc1, doc2, from_first=False),
+        }
+        
+        # Interpretando os resultados
+        similarity_avg = (result['jaccard_similarity'] + result['cosine_similarity']) / 2
+        if similarity_avg > 0.7:
+            result['match_level'] = 'Alto'
+        elif similarity_avg > 0.4:
+            result['match_level'] = 'Médio'
+        else:
+            result['match_level'] = 'Baixo'
+        
+        return result
