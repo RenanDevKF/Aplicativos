@@ -95,3 +95,36 @@ def cosine_similarity(self, text1: str, text2: str) -> float:
 
     # Calculando e retornando a similaridade do cosseno
     return dot_product / (norm1 * norm2)
+
+def get_common_terms(self, text1: str, text2: str, top_n: int = 10) -> List[str]:
+        """
+        Obtém os termos mais comuns entre dois textos
+        
+        Args:
+            text1: Primeiro texto
+            text2: Segundo texto
+            top_n: Número de termos comuns a retornar
+            
+        Returns:
+            Lista dos top_n termos mais comuns entre os textos
+        """
+        words1, words2 = self.preprocess_texts(text1, text2)
+        
+        # Convertendo listas para conjuntos
+        set1 = set(words1)
+        set2 = set(words2)
+        
+        # Encontrando intersecção
+        common_terms = set1.intersection(set2)
+        
+        # Contando frequência dos termos comuns em ambos os textos
+        counter1 = Counter(words1)
+        counter2 = Counter(words2)
+        
+        # Somando frequências
+        common_counter = {term: counter1[term] + counter2[term] for term in common_terms}
+        
+        # Ordenando por frequência
+        sorted_terms = sorted(common_counter.items(), key=lambda x: x[1], reverse=True)
+        
+        return [term for term, count in sorted_terms[:top_n]]
