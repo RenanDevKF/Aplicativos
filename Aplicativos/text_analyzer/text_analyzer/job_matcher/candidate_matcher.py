@@ -78,3 +78,33 @@ class CandidateMatcher:
                                ", ".join(resultado['diferenciais_candidato'][:3]))
         
         return recomendacoes
+    
+    def classificar_vagas(self, lista_vagas: List[Dict]) -> List[Dict]:
+        """
+        Classifica uma lista de vagas por compatibilidade com o currículo
+        
+        Args:
+            lista_vagas: Lista de dicionários contendo vagas (com chaves 'id', 'titulo', 'descricao')
+            
+        Returns:
+            Lista de vagas ordenadas por compatibilidade, com análise incluída
+        """
+        resultados = []
+        
+        for vaga in lista_vagas:
+            analise = self.analisar_vaga(vaga['descricao'])
+            
+            resultados.append({
+                'id_vaga': vaga['id'],
+                'titulo': vaga['titulo'],
+                'compatibilidade': analise['compatibilidade_geral'],
+                'nivel_match': analise['nivel_match'],
+                'analise_detalhada': analise
+            })
+        
+        # Ordenando por compatibilidade (maior para menor)
+        resultados_ordenados = sorted(resultados, 
+                                     key=lambda x: x['compatibilidade'], 
+                                     reverse=True)
+        
+        return resultados_ordenados
