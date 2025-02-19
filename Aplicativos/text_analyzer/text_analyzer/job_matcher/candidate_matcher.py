@@ -108,3 +108,34 @@ class CandidateMatcher:
                                      reverse=True)
         
         return resultados_ordenados
+    
+    def recomendar_melhorias_curriculo(self, vagas_alvo: List[str]) -> Dict:
+        """
+        Analisa múltiplas vagas de interesse e sugere melhorias no currículo
+        
+        Args:
+            vagas_alvo: Lista de textos de vagas que interessam ao candidato
+            
+        Returns:
+            Dicionário com recomendações consolidadas
+        """
+        # Coletando requisitos comuns nas vagas alvo
+        todos_requisitos = []
+        for vaga in vagas_alvo:
+            analise = self.analisar_vaga(vaga)
+            todos_requisitos.extend(analise['requisitos_faltantes'])
+        
+        # Contando frequência dos requisitos
+        from collections import Counter
+        contador_requisitos = Counter(todos_requisitos)
+        
+        # Requisitos mais comuns que faltam no currículo
+        top_requisitos = contador_requisitos.most_common(10)
+        
+        return {
+            'habilidades_prioritarias': [req for req, _ in top_requisitos],
+            'sugestao_melhoria': (
+                "Com base nas vagas analisadas, considere desenvolver ou destacar "
+                f"estas habilidades em seu currículo: {', '.join([req for req, _ in top_requisitos[:5]])}"
+            )
+        }
