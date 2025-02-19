@@ -128,3 +128,35 @@ def get_common_terms(self, text1: str, text2: str, top_n: int = 10) -> List[str]
         sorted_terms = sorted(common_counter.items(), key=lambda x: x[1], reverse=True)
         
         return [term for term, count in sorted_terms[:top_n]]
+
+def get_unique_terms(self, text1: str, text2: str, from_first: bool = True, top_n: int = 10) -> List[str]:
+        """
+        Obtém os termos únicos de um texto em relação ao outro
+        
+        Args:
+            text1: Primeiro texto
+            text2: Segundo texto
+            from_first: Se True, retorna termos únicos do primeiro texto. Se False, do segundo.
+            top_n: Número de termos únicos a retornar
+            
+        Returns:
+            Lista dos top_n termos únicos mais frequentes
+        """
+        words1, words2 = self.preprocess_texts(text1, text2)
+        
+        if from_first:
+            # Termos que estão em words1 mas não em words2
+            unique_set = set(words1) - set(words2)
+            counter = Counter(words1)
+        else:
+            # Termos que estão em words2 mas não em words1
+            unique_set = set(words2) - set(words1)
+            counter = Counter(words2)
+        
+        # Filtrando o contador para incluir apenas termos únicos
+        unique_counter = {term: counter[term] for term in unique_set}
+        
+        # Ordenando por frequência
+        sorted_terms = sorted(unique_counter.items(), key=lambda x: x[1], reverse=True)
+        
+        return [term for term, count in sorted_terms[:top_n]]   
