@@ -54,3 +54,44 @@ class TextComparator:
             return 0
         
         return intersection / union
+    
+    import numpy as np
+from collections import Counter
+
+def cosine_similarity(self, text1: str, text2: str) -> float:
+    """
+    Calcula a similaridade do cosseno entre dois textos.
+
+    Args:
+        text1: Primeiro texto
+        text2: Segundo texto
+
+    Returns:
+        Coeficiente de similaridade do cosseno (0 a 1)
+    """
+    words1, words2 = self.preprocess_texts(text1, text2)
+
+    # Criando contadores de palavras
+    counter1 = Counter(words1)
+    counter2 = Counter(words2)
+
+    # Obtendo todas as palavras únicas
+    all_words = set(counter1.keys()).union(set(counter2.keys()))
+
+    # Criando vetores de frequência
+    vec1 = [counter1.get(word, 0) for word in all_words]
+    vec2 = [counter2.get(word, 0) for word in all_words]
+
+    # Calculando norma dos vetores
+    norm1 = np.sqrt(sum(val ** 2 for val in vec1))
+    norm2 = np.sqrt(sum(val ** 2 for val in vec2))
+
+    # Evitando divisão por zero
+    if norm1 == 0 or norm2 == 0:
+        return 0.0
+
+    # Calculando o produto escalar dos vetores
+    dot_product = sum(v1 * v2 for v1, v2 in zip(vec1, vec2))
+
+    # Calculando e retornando a similaridade do cosseno
+    return dot_product / (norm1 * norm2)
