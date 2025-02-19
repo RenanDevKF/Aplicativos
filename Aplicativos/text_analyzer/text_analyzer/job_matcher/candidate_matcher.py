@@ -15,3 +15,30 @@ class CandidateMatcher:
         """
         self.curriculo = curriculo
         self.comparator = TextComparator()
+    
+    def analisar_vaga(self, vaga: str) -> Dict:
+        """
+        Analisa uma vaga específica em relação ao currículo do candidato
+        
+        Args:
+            vaga: Texto da vaga de emprego
+            
+        Returns:
+            Dicionário com análise de compatibilidade e recomendações
+        """
+        # Obtendo métricas de comparação básicas
+        resultado_base = self.comparator.compare_documents(vaga, self.curriculo)
+        
+        # Adaptando o resultado para perspectiva do candidato
+        resultado = {
+            'compatibilidade_geral': resultado_base['cosine_similarity'],
+            'nivel_match': resultado_base['match_level'],
+            'habilidades_correspondentes': resultado_base['common_terms'],
+            'requisitos_faltantes': resultado_base['unique_terms_doc1'],
+            'diferenciais_candidato': resultado_base['unique_terms_doc2'],
+        }
+        
+        # Adicionando recomendações específicas
+        resultado['recomendacoes'] = self._gerar_recomendacoes(resultado)
+        
+        return resultado    
