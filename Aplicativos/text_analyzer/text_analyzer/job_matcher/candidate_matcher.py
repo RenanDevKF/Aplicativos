@@ -1,7 +1,7 @@
 from typing import Dict, List, Tuple, Union
 import numpy as np
 from ..comparator.text_comparator import TextComparator
-from ..utils.web_handler import fetch_web_text
+from ..utils.web_handler import fetch_webpage_text
 from ..utils.file_handler import read_file
 
 class CandidateMatcher:
@@ -28,7 +28,7 @@ class CandidateMatcher:
         Returns:
             dict: Dicionário contendo a análise de compatibilidade, habilidades correspondentes e recomendações.
         """
-        vaga = fetch_web_text(job_url)
+        vaga = fetch_webpage_text(job_url)
         
         # Obtendo métricas de comparação
         resultado_base = self.comparator.compare_texts(self.curriculo, vaga)
