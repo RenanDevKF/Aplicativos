@@ -3,13 +3,31 @@ import numpy as np
 from collections import Counter
 import re
 from ..utils.text_cleaner import clean_text
-from ..core.analyzer import TextAnalyzer
+from ..utils.file_handler import read_file
+from ..utils.web_handler import fetch_webpage_text
 
 class TextComparator:
     """
     Classe responsável por comparar textos e calcular métricas de similaridade
     """
-            
+    
+    def load_text(self, file_path: str, job_url: str) -> Tuple [str, str]:
+        """
+        Carrega textos do currículo e da vaga de emprego.
+
+        Args:
+            file_path: Caminho do arquivo contendo o currículo.
+            job_url: URL da página com a descrição da vaga.
+
+        Returns:
+            Tupla contendo o texto do currículo e o da vaga.
+        """
+        
+        resume_text = read_file(file_path)
+        job_text = fetch_webpage_text(job_url)
+        
+        return resume_text, job_text
+          
     def preprocess_texts(self, text1: str, text2: str) -> Tuple[List[str], List[str]]:
         """
         Pré-processa dois textos para comparação
@@ -48,13 +66,8 @@ class TextComparator:
         union = len(set1.union(set2))
         
         # Evitando divisão por zero
-        if union == 0:
-            return 0
-        
-        return intersection / union
+        return intersection / union if union !=0 else 0
     
-from collections import Counter
-
 def cosine_similarity(self, text1: str, text2: str) -> float:
     """
     Calcula a similaridade do cosseno entre dois textos.
@@ -158,7 +171,7 @@ def get_unique_terms(self, text1: str, text2: str, from_first: bool = True, top_
         
         return [term for term, count in sorted_terms[:top_n]]
     
-def compare_documents(self, doc1: str, doc2: str) -> Dict:
+def compare_documents(self, file_path: str, job_url: str) -> Dict:
         """
         Realiza uma comparação completa entre dois documentos
         
@@ -169,12 +182,15 @@ def compare_documents(self, doc1: str, doc2: str) -> Dict:
         Returns:
             Dicionário com múltiplas métricas de similaridade e análises comparativas
         """
+        
+        resume_text, job_text = self.load_text(file_path, job_url)
+        
         result = {
-            'jaccard_similarity': self.jaccard_similarity(doc1, doc2),
-            'cosine_similarity': self.cosine_similarity(doc1, doc2),
-            'common_terms': self.get_common_terms(doc1, doc2),
-            'unique_terms_doc1': self.get_unique_terms(doc1, doc2, from_first=True),
-            'unique_terms_doc2': self.get_unique_terms(doc1, doc2, from_first=False),
+            'jaccard_similarity': self.jaccard_similarity(resume_text, job_text),
+            'cosine_similarity': self.cosine_similarity(resume_text, job_text),
+            'common_terms': self.get_common_terms(resume_text, job_text),
+            'unique_terms_resume': self.get_unique_terms(resume_text, job_text)[0],
+            'unique_terms_job': self.get_unique_terms(resume_text, job_text)[1],
         }
         
         # Interpretando os resultados
@@ -187,3 +203,4 @@ def compare_documents(self, doc1: str, doc2: str) -> Dict:
             result['match_level'] = 'Baixo'
         
         return result
+    
