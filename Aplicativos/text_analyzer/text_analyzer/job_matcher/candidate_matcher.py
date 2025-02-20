@@ -1,41 +1,45 @@
 from typing import Dict, List, Tuple, Union
 import numpy as np
 from ..comparator.text_comparator import TextComparator
+from ..utils.web_handler import fetch_web_text
+from ..utils.file_handler import read_file
 
 class CandidateMatcher:
     """
     Classe para ajudar candidatos a encontrar e analisar vagas compatíveis com seu perfil
     """
-    def __init__(self, curriculo: str):
+    def __init__(self, curriculo_path: str):
         """
-        Inicializa o matcher com o currículo do candidato
+        Inicializa o matcher com o caminho do currículo do candidato
         
         Args:
-            curriculo: Texto do currículo do candidato
+            curriculo_path: Caminho do arquivo do currículo do candidato
         """
-        self.curriculo = curriculo
+        self.curriculo = read_file(curriculo_path)
         self.comparator = TextComparator()
     
-    def analisar_vaga(self, vaga: str) -> Dict:
+    def analisar_vaga(self, job_url: str) -> Dict:
         """
         Analisa uma vaga específica em relação ao currículo do candidato
         
         Args:
-            vaga: Texto da vaga de emprego
+            job_url: URL da vaga de emprego
             
         Returns:
             Dicionário com análise de compatibilidade e recomendações
         """
+        vaga = fetch_web_text(job_url)
+        
         # Obtendo métricas de comparação básicas
-        resultado_base = self.comparator.compare_documents(vaga, self.curriculo)
+        resultado_base = self.comparator.compare_texts(self.curriculo, vaga)
         
         # Adaptando o resultado para perspectiva do candidato
         resultado = {
             'compatibilidade_geral': resultado_base['cosine_similarity'],
             'nivel_match': resultado_base['match_level'],
-            'habilidades_correspondentes': resultado_base['common_terms'],
-            'requisitos_faltantes': resultado_base['unique_terms_doc1'],
-            'diferenciais_candidato': resultado_base['unique_terms_doc2'],
+            'habilidades_correspondentes': resultado_base.get('common_terms', []),
+            'requisitos_faltantes': resultado_base.get('unique_terms_doc1', []),
+            'diferenciais_candidato': resultado_base.get('unique_terms_doc2', []),
         }
         
         # Adicionando recomendações específicas
@@ -84,7 +88,7 @@ class CandidateMatcher:
         Classifica uma lista de vagas por compatibilidade com o currículo
         
         Args:
-            lista_vagas: Lista de dicionários contendo vagas (com chaves 'id', 'titulo', 'descricao')
+            lista_vagas: Lista de dicionários contendo vagas (com chaves 'id', 'titulo', 'url')
             
         Returns:
             Lista de vagas ordenadas por compatibilidade, com análise incluída
@@ -92,7 +96,7 @@ class CandidateMatcher:
         resultados = []
         
         for vaga in lista_vagas:
-            analise = self.analisar_vaga(vaga['descricao'])
+            analise = self.analisar_vaga(vaga['url'])
             
             resultados.append({
                 'id_vaga': vaga['id'],
@@ -114,28 +118,28 @@ class CandidateMatcher:
         Analisa múltiplas vagas de interesse e sugere melhorias no currículo
         
         Args:
-            vagas_alvo: Lista de textos de vagas que interessam ao candidato
+            vagas_alvo: Lista de URLs de vagas que interessam ao candidato
             
         Returns:
             Dicionário com recomendações consolidadas
         """
-        # Coletando requisitos comuns nas vagas alvo
         todos_requisitos = []
-        for vaga in vagas_alvo:
-            analise = self.analisar_vaga(vaga)
-            todos_requisitos.extend(analise['requisitos_faltantes'])
+        habilidades_candidato = set(self.comparator.preprocess_texts(self.curriculo, "")[0])
+
+        for job_url in vagas_alvo:
+            analise = self.analisar_vaga(job_url)
+            requisitos_faltantes = [req for req in analise['requisitos_faltantes'] if req not in habilidades_candidato]
+            todos_requisitos.extend(requisitos_faltantes)
         
         # Contando frequência dos requisitos
         from collections import Counter
         contador_requisitos = Counter(todos_requisitos)
-        
-        # Requisitos mais comuns que faltam no currículo
         top_requisitos = contador_requisitos.most_common(10)
         
         return {
             'habilidades_prioritarias': [req for req, _ in top_requisitos],
             'sugestao_melhoria': (
                 "Com base nas vagas analisadas, considere desenvolver ou destacar "
-                f"estas habilidades em seu currículo: {', '.join([req for req, _ in top_requisitos[:5]])}"
+                f"estas habilidades em seu currículo: {', '.join([req for req, _ in top_requisitos[:5]])}."
             )
         }
