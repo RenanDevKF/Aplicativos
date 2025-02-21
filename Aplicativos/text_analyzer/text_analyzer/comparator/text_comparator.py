@@ -43,21 +43,23 @@ class TextComparator:
 
     def preprocess_texts(self, text1: str, text2: str) -> Tuple[List[str], List[str]]:
         """
-        Pré-processa dois textos para comparação.
+    Pré-processa dois textos para comparação.
 
-        Aplica limpeza básica dos textos e os converte em listas de palavras.
+    Aplica limpeza básica dos textos e os converte em listas de palavras.
 
-        Args:
-            text1 (str): Primeiro texto a ser processado.
-            text2 (str): Segundo texto a ser processado.
+    Args:
+        text1 (str): Primeiro texto a ser processado.
+        text2 (str): Segundo texto a ser processado.
 
-        Returns:
-            Tuple[List[str], List[str]]: Tupla contendo listas de palavras processadas para cada texto.
+    Returns:
+        Tuple[List[str], List[str]]: Tupla contendo listas de palavras processadas para cada texto.
         """
         if not isinstance(text1, str) or not isinstance(text2, str):
             raise TypeError("Os textos fornecidos devem ser strings.")
+    
+    # Modificação para retornar listas vazias ao invés de lançar erro
         if not text1.strip() or not text2.strip():
-            raise ValueError("Os textos não podem estar vazios.")
+            return [], []  # Retorna listas vazias se os textos forem vazios ou apenas espaços
 
         try:
             words1 = clean_text(text1)
@@ -66,6 +68,7 @@ class TextComparator:
             raise RuntimeError(f"Erro ao processar os textos: {e}")
 
         return words1, words2
+
 
     def jaccard_similarity(self, text1: str, text2: str) -> float:
         """
