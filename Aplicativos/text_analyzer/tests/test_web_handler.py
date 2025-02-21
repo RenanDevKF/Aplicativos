@@ -4,28 +4,34 @@ from unittest.mock import Mock
 import requests
 
 def test_fetch_webpage_text_success(mocker):
-    # Simulando uma resposta HTTP bem-sucedida com conteúdo HTML simples
+    """Testa se a função retorna corretamente o texto extraído quando a resposta HTTP é válida."""
     mock_response = mocker.Mock()
     mock_response.status_code = 200
-    mock_response.text = "<html><body><p>Texto extraído</p></body></html>"
+    mock_response.text = "<html><body><h1>Vaga Exemplo</h1><p>Descrição da vaga</p></body></html>"
     mocker.patch("requests.get", return_value=mock_response)
 
+    # Simula um seletor existente no SELECTORS para teste
+    mocker.patch("job_matcher.config.selectors.SELECTORS", {"exemplo.com": {"title": "h1"}})
+
     result = fetch_webpage_text("http://exemplo.com")
-    assert "Texto extraído" in result
-    assert result == "Texto extraído"  # Verifica que o texto correto é extraído
+
+    assert "title" in result
+    assert result["title"] == "Vaga Exemplo"
 
 def test_fetch_webpage_text_empty_response(mocker):
-    # Simulando uma resposta vazia
+    """Testa se a função retorna valores padrão quando a resposta está vazia."""
     mock_response = mocker.Mock()
     mock_response.status_code = 200
     mock_response.text = ""
     mocker.patch("requests.get", return_value=mock_response)
 
+    mocker.patch("job_matcher.config.selectors.SELECTORS", {"exemplo.com": {"title": "h1"}})
+
     result = fetch_webpage_text("http://exemplo.com")
-    assert result == "Nenhum texto relevante encontrado na página."  # Espera a mensagem padrão
+    assert result["title"] == "N/A"
 
 def test_fetch_webpage_text_error_status(mocker):
-    # Simulando uma resposta com erro HTTP (404)
+    """Testa se a função retorna um erro quando recebe um código HTTP inválido."""
     mock_response = mocker.Mock()
     mock_response.status_code = 404
     mock_response.text = "Página não encontrada"
@@ -33,25 +39,32 @@ def test_fetch_webpage_text_error_status(mocker):
 
     result = fetch_webpage_text("http://exemplo.com")
     
-    # Verificando se a resposta contém a descrição do erro de status
-    assert "404" in result  # Verifica se o código de status 404 está na resposta
-    assert "Página não encontrada" in result  # Verifica se a descrição do erro está na resposta
-
-    
+    assert "erro" in result
+    assert "404" in result["erro"]
 
 def test_fetch_webpage_text_invalid_html(mocker):
-    # Simulando uma resposta com HTML malformado
+    """Testa se a função ainda extrai texto mesmo quando o HTML está malformado."""
     mock_response = mocker.Mock()
     mock_response.status_code = 200
-    mock_response.text = "<html><body><p>Texto extraído"
+    mock_response.text = "<html><body><h1>Vaga Exemplo"
     mocker.patch("requests.get", return_value=mock_response)
 
+    mocker.patch("job_matcher.config.selectors.SELECTORS", {"exemplo.com": {"title": "h1"}})
+
     result = fetch_webpage_text("http://exemplo.com")
-    assert "Texto extraído" in result  # Espera o texto ser extraído, mesmo com HTML malformado
+    assert result["title"] == "Vaga Exemplo"
 
 def test_fetch_webpage_text_request_timeout(mocker):
-    # Simulando um erro de timeout ao fazer a requisição
+    """Testa se a função retorna um erro quando ocorre timeout na requisição."""
     mocker.patch("requests.get", side_effect=requests.exceptions.Timeout)
 
-    with pytest.raises(requests.exceptions.Timeout):
-        fetch_webpage_text("http://exemplo.com")
+    result = fetch_webpage_text("http://exemplo.com")
+
+    assert "erro" in result
+    assert "Timeout" in result["erro"]
+
+def test_fetch_webpage_text_invalid_url():
+    """Testa se a função retorna erro ao receber uma URL inválida."""
+    result = fetch_webpage_text("")
+    assert "erro" in result
+    assert "URL" in result["erro"]
