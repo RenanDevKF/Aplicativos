@@ -25,8 +25,20 @@ class TextComparator:
         Returns:
             Tuple[str, str]: Tupla contendo o texto do currículo e o da vaga.
         """
-        resume_text = read_file(file_path)
-        job_text = fetch_webpage_text(job_url)
+        try:
+            resume_text = read_file(file_path)
+        except FileNotFoundError:
+            raise FileNotFoundError(f"O arquivo '{file_path}' não foi encontrado.")
+        except PermissionError:
+            raise PermissionError(f"Sem permissão para ler o arquivo '{file_path}'.")
+        except Exception as e:
+            raise RuntimeError(f"Erro ao ler o arquivo '{file_path}': {e}")
+
+        try:
+            job_text = fetch_webpage_text(job_url)
+        except Exception as e:
+            raise RuntimeError(f"Erro ao buscar texto da URL '{job_url}': {e}")
+
         return resume_text, job_text
 
     def preprocess_texts(self, text1: str, text2: str) -> Tuple[List[str], List[str]]:
@@ -42,8 +54,17 @@ class TextComparator:
         Returns:
             Tuple[List[str], List[str]]: Tupla contendo listas de palavras processadas para cada texto.
         """
-        words1 = clean_text(text1)
-        words2 = clean_text(text2)
+        if not isinstance(text1, str) or not isinstance(text2, str):
+            raise TypeError("Os textos fornecidos devem ser strings.")
+        if not text1.strip() or not text2.strip():
+            raise ValueError("Os textos não podem estar vazios.")
+
+        try:
+            words1 = clean_text(text1)
+            words2 = clean_text(text2)
+        except Exception as e:
+            raise RuntimeError(f"Erro ao processar os textos: {e}")
+
         return words1, words2
 
     def jaccard_similarity(self, text1: str, text2: str) -> float:
@@ -85,13 +106,16 @@ class TextComparator:
         counter1, counter2 = Counter(words1), Counter(words2)
         all_words = set(counter1.keys()).union(counter2.keys())
 
-        vec1 = [counter1.get(word, 0) for word in all_words]
-        vec2 = [counter2.get(word, 0) for word in all_words]
+        vec1 = np.array([counter1.get(word, 0) for word in all_words])
+        vec2 = np.array([counter2.get(word, 0) for word in all_words])
 
         norm1 = np.linalg.norm(vec1)
         norm2 = np.linalg.norm(vec2)
+        
+        if norm1 == 0 or norm2 == 0:
+            return 0.0
 
-        return float(np.dot(vec1, vec2) / (norm1 * norm2)) if norm1 and norm2 else 0.0
+        return float(np.dot(vec1, vec2) / (norm1 * norm2))
 
     def get_common_terms(self, text1: str, text2: str, top_n: int = 10) -> List[str]:
         """
@@ -145,17 +169,25 @@ class TextComparator:
         Returns:
             Dict[str, Union[float, List[str], str]]: Dicionário contendo métricas de similaridade e análise textual.
         """
-        resume_text, job_text = self.load_text(file_path, job_url)
+        try:
+            resume_text, job_text = self.load_text(file_path, job_url)
+        except Exception as e:
+            raise RuntimeError(f"Erro ao carregar os textos: {e}")
 
-        jaccard = self.jaccard_similarity(resume_text, job_text)
-        cosine = self.cosine_similarity(resume_text, job_text)
+        try:
+            jaccard = self.jaccard_similarity(resume_text, job_text)
+            cosine = self.cosine_similarity(resume_text, job_text)
+            common_terms = self.get_common_terms(resume_text, job_text)
+            unique_terms_resume = self.get_unique_terms(resume_text, job_text, from_first=True)
+            unique_terms_job = self.get_unique_terms(resume_text, job_text, from_first=False)
+        except Exception as e:
+            raise RuntimeError(f"Erro ao calcular métricas de similaridade: {e}")
 
-        result = {
+        return {
             'jaccard_similarity': jaccard,
             'cosine_similarity': cosine,
-            'common_terms': self.get_common_terms(resume_text, job_text),
-            'unique_terms_resume': self.get_unique_terms(resume_text, job_text, from_first=True),
-            'unique_terms_job': self.get_unique_terms(resume_text, job_text, from_first=False),
+            'common_terms': common_terms,
+            'unique_terms_resume': unique_terms_resume,
+            'unique_terms_job': unique_terms_job,
             'match_level': 'Alto' if (jaccard + cosine) / 2 > 0.7 else 'Médio' if (jaccard + cosine) / 2 > 0.4 else 'Baixo'
         }
-        return result
