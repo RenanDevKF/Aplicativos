@@ -43,7 +43,7 @@ class CandidateMatcher:
             if not vaga:
                 raise ValueError(f"Não foi possível obter a descrição da vaga em {job_url}")
 
-            resultado_base = self.comparator.compare_texts(self.curriculo, vaga)
+            resultado_base = self.comparator.compare_documents(self.curriculo, vaga)
             if not resultado_base:
                 raise RuntimeError("Erro na comparação de textos. Nenhum resultado gerado.")
 
