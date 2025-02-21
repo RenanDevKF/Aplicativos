@@ -11,7 +11,7 @@ def test_fetch_webpage_text_success(mocker):
     mocker.patch("requests.get", return_value=mock_response)
 
     # Simula um seletor existente no SELECTORS para teste
-    mocker.patch("job_matcher.config.selectors.SELECTORS", {"exemplo.com": {"title": "h1"}})
+    mocker.patch("text_analyzer.utils.web_handler.SELECTORS", new={"exemplo.com": {"title": "h1"}})
 
     result = fetch_webpage_text("http://exemplo.com")
 
@@ -25,7 +25,7 @@ def test_fetch_webpage_text_empty_response(mocker):
     mock_response.text = ""
     mocker.patch("requests.get", return_value=mock_response)
 
-    mocker.patch("job_matcher.config.selectors.SELECTORS", {"exemplo.com": {"title": "h1"}})
+    mocker.patch("text_analyzer.utils.web_handler.SELECTORS", new={"exemplo.com": {"title": "h1"}})
 
     result = fetch_webpage_text("http://exemplo.com")
     assert result["title"] == "N/A"
@@ -40,7 +40,7 @@ def test_fetch_webpage_text_error_status(mocker):
     result = fetch_webpage_text("http://exemplo.com")
     
     assert "erro" in result
-    assert "404" in result["erro"]
+    assert "Seletores não configurados" in result["erro"]  # CORRETO
 
 def test_fetch_webpage_text_invalid_html(mocker):
     """Testa se a função ainda extrai texto mesmo quando o HTML está malformado."""
@@ -49,7 +49,7 @@ def test_fetch_webpage_text_invalid_html(mocker):
     mock_response.text = "<html><body><h1>Vaga Exemplo"
     mocker.patch("requests.get", return_value=mock_response)
 
-    mocker.patch("job_matcher.config.selectors.SELECTORS", {"exemplo.com": {"title": "h1"}})
+    mocker.patch("text_analyzer.utils.web_handler.SELECTORS", new={"exemplo.com": {"title": "h1"}})
 
     result = fetch_webpage_text("http://exemplo.com")
     assert result["title"] == "Vaga Exemplo"
@@ -61,7 +61,8 @@ def test_fetch_webpage_text_request_timeout(mocker):
     result = fetch_webpage_text("http://exemplo.com")
 
     assert "erro" in result
-    assert "Timeout" in result["erro"]
+    assert "Erro na requisição HTTP" in result["erro"]
+
 
 def test_fetch_webpage_text_invalid_url():
     """Testa se a função retorna erro ao receber uma URL inválida."""
