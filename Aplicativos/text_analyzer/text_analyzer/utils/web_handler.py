@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 import requests
 from urllib.parse import urlparse
-from job_matcher.config.selectors import SELECTORS
+from text_analyzer.job_matcher.config.selectors import SELECTORS
 
 def fetch_webpage_text(url: str) -> dict:
     """
