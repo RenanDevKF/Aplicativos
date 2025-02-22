@@ -1,4 +1,3 @@
-# analise_arquivos.py
 import os
 from text_analyzer.core.analyzer import TextAnalyzer
 from text_analyzer.visualizers.word_cloud import WordCloudGenerator
@@ -20,6 +19,7 @@ def analisar_arquivo_unico(caminho_arquivo: str, nome_saida: str = None):
 
     try:
         # Ler e analisar o arquivo
+        print(f"Iniciando análise do arquivo: {caminho_arquivo}")  # Print para iniciar a análise
         texto = read_file(caminho_arquivo)
         analyzer.load_text(texto)
 
@@ -36,13 +36,16 @@ def analisar_arquivo_unico(caminho_arquivo: str, nome_saida: str = None):
             print(f"- {palavra}: {frequencia} vezes")
 
         # Gerar visualizações
+        print(f"Gerando visualizações para {nome_saida}...")  # Print indicando que as visualizações estão sendo geradas
         # Nuvem de palavras
         wordcloud = wc_generator.generate(analyzer.word_frequencies)
         wordcloud.to_file(f'{nome_saida}_nuvem.png')
+        print(f"Nuvem de palavras salva como {nome_saida}_nuvem.png")
 
         # Gráfico de barras
         plt = viz.create_bar_chart(analyzer.word_frequencies, top_n=10)
         plt.savefig(f'{nome_saida}_frequencia.png')
+        print(f"Gráfico de frequência salvo como {nome_saida}_frequencia.png")
         plt.close()
 
         return analyzer.word_frequencies
@@ -59,9 +62,11 @@ def analisar_pasta(caminho_pasta: str, extensoes=['.txt']):
     arquivos_processados = 0
 
     # Percorrer todos os arquivos na pasta
+    print(f"Iniciando a análise da pasta: {caminho_pasta}")  # Print para indicar que a pasta está sendo analisada
     for arquivo in os.listdir(caminho_pasta):
         if any(arquivo.endswith(ext) for ext in extensoes):
             caminho_completo = os.path.join(caminho_pasta, arquivo)
+            print(f"Processando o arquivo: {caminho_completo}")  # Print para mostrar o arquivo sendo processado
             frequencias = analisar_arquivo_unico(caminho_completo)
             
             if frequencias:
@@ -81,22 +86,31 @@ def analisar_pasta(caminho_pasta: str, extensoes=['.txt']):
         # Nuvem de palavras consolidada
         wordcloud = wc_generator.generate(frequencias_totais)
         wordcloud.to_file('analise_consolidada_nuvem.png')
+        print("Nuvem de palavras consolidada salva como analise_consolidada_nuvem.png")
 
         # Gráfico de frequência consolidado
         plt = viz.create_bar_chart(frequencias_totais, top_n=15)
         plt.savefig('analise_consolidada_frequencia.png')
+        print("Gráfico de frequência consolidado salvo como analise_consolidada_frequencia.png")
         plt.close()
 
 def main():
-    # Exemplo de uso para um único arquivo
-    arquivo_unico = "caminho/para/seu/arquivo.txt"
+    # Caminho do arquivo único que você deseja analisar
+    arquivo_unico = "test_files/curriculo_test_ramiro.pdf"  # Caminho relativo ou absoluto para o arquivo
     if os.path.exists(arquivo_unico):
+        print(f"Analisando arquivo único: {arquivo_unico}")
         analisar_arquivo_unico(arquivo_unico)
-
-    # Exemplo de uso para uma pasta
-    pasta_textos = "caminho/para/sua/pasta"
+    else:
+        print(f"Arquivo não encontrado: {arquivo_unico}")
+    
+    # Caminho da pasta onde você tem arquivos para analisar
+    pasta_textos = "test_files"  # Caminho relativo ou absoluto para a pasta
     if os.path.exists(pasta_textos):
-        analisar_pasta(pasta_textos, extensoes=['.txt', '.md'])
+        print(f"Analisando pasta: {pasta_textos}")
+        analisar_pasta(pasta_textos, extensoes=['.txt', '.pdf'])  # Incluindo .pdf nas extensões a serem analisadas
+    else:
+        print(f"Pasta não encontrada: {pasta_textos}")
+
 
 if __name__ == "__main__":
     main()
