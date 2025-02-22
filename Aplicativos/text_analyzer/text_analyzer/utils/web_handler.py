@@ -1,3 +1,5 @@
+import os
+import json
 from bs4 import BeautifulSoup
 import requests
 from urllib.parse import urlparse
@@ -53,3 +55,48 @@ def fetch_webpage_text(url: str) -> dict:
         return {"erro": f"Erro de validação: {str(val_err)}"}
     except Exception as e:
         return {"erro": f"Erro inesperado: {str(e)}"}
+
+def salvar_em_json(dados, caminho_arquivo):
+    """
+    Salva os dados extraídos em um arquivo JSON.
+
+    Args:
+        dados (dict): Dados a serem salvos.
+        caminho_arquivo (str): Caminho completo do arquivo JSON.
+    """
+    try:
+        # Cria o diretório se não existir
+        os.makedirs(os.path.dirname(caminho_arquivo), exist_ok=True)
+
+        # Salva os dados no formato JSON
+        with open(caminho_arquivo, 'w', encoding='utf-8') as f:
+            json.dump(dados, f, ensure_ascii=False, indent=4)
+        print(f"Dados salvos em: {caminho_arquivo}")
+    except Exception as e:
+        print(f"Erro ao salvar o arquivo JSON: {e}")
+
+# Função para ler os links do arquivo
+def ler_links_do_arquivo(caminho_arquivo):
+    with open(caminho_arquivo, 'r') as arquivo:
+        links = [linha.strip() for linha in arquivo.readlines() if linha.strip()]
+    return links
+
+# Caminho para o arquivo com os links
+caminho_arquivo = 'links.txt'
+
+# Ler os links do arquivo
+urls = ler_links_do_arquivo(caminho_arquivo)
+
+# Dicionário para armazenar os textos extraídos de cada página
+vaga_textos = {}
+
+# Extrair os textos de cada URL
+for url in urls:
+    vaga_textos[url] = fetch_webpage_text(url)
+
+# Caminho do diretório onde os arquivos serão salvos (relativo)
+diretorio_base = os.path.dirname(os.path.abspath(__file__))  # Pega o diretório onde o script está localizado
+caminho_json = os.path.join(diretorio_base, 'config', 'vagas_extraidas.json')  # Diretório 'config' dentro do diretório do script
+
+# Salvar os dados extraídos no arquivo JSON
+salvar_em_json(vaga_textos, caminho_json)
