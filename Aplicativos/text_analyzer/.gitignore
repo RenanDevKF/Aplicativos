@@ -5,4 +5,4 @@ nuvem*
 __pycache__/
 *.pyc
 venv/
-
+*.json
