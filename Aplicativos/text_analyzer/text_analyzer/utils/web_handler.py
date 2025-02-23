@@ -81,12 +81,12 @@ def salvar_em_json(dados, caminho_arquivo):
 
 # Função para ler os links do arquivo
 def ler_links_do_arquivo(caminho_arquivo):
-    with open(caminho_arquivo, 'r') as arquivo:
+    with open(caminho_arquivo, 'r', encoding='utf-8') as arquivo:
         links = [linha.strip() for linha in arquivo.readlines() if linha.strip()]
     return links
 
 # Caminho para o arquivo com os links
-caminho_arquivo = os.path.join(os.path.dirname(__file__), 'job_matcher', 'config', 'links_vagas.txt')
+caminho_arquivo = os.path.join(os.path.dirname(__file__), '..', 'job_matcher', 'config', 'links_vagas.txt')
 
 # Ler os links do arquivo
 urls = ler_links_do_arquivo(caminho_arquivo)
@@ -99,7 +99,7 @@ for url in urls:
     vaga_textos[url] = fetch_webpage_text(url)
 
 # Pega o diretório raiz do projeto (text_analyzer/text_analyzer)
-diretorio_base = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+diretorio_base = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 caminho_json = os.path.join(diretorio_base, 'job_matcher', 'config', 'vagas_extraidas.json')
 
 # Salvar os dados extraídos no arquivo JSON
