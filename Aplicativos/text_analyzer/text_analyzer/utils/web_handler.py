@@ -1,9 +1,13 @@
 import os
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 import json
 from bs4 import BeautifulSoup
 import requests
 from urllib.parse import urlparse
 from text_analyzer.job_matcher.config.selectors import SELECTORS
+
+
 
 def fetch_webpage_text(url: str) -> dict:
     """
@@ -82,7 +86,7 @@ def ler_links_do_arquivo(caminho_arquivo):
     return links
 
 # Caminho para o arquivo com os links
-caminho_arquivo = 'links.txt'
+caminho_arquivo = os.path.join(os.path.dirname(__file__), 'job_matcher', 'config', 'links_vagas.txt')
 
 # Ler os links do arquivo
 urls = ler_links_do_arquivo(caminho_arquivo)
@@ -94,9 +98,9 @@ vaga_textos = {}
 for url in urls:
     vaga_textos[url] = fetch_webpage_text(url)
 
-# Caminho do diretório onde os arquivos serão salvos (relativo)
-diretorio_base = os.path.dirname(os.path.abspath(__file__))  # Pega o diretório onde o script está localizado
-caminho_json = os.path.join(diretorio_base, 'config', 'vagas_extraidas.json')  # Diretório 'config' dentro do diretório do script
+# Pega o diretório raiz do projeto (text_analyzer/text_analyzer)
+diretorio_base = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+caminho_json = os.path.join(diretorio_base, 'job_matcher', 'config', 'vagas_extraidas.json')
 
 # Salvar os dados extraídos no arquivo JSON
 salvar_em_json(vaga_textos, caminho_json)
