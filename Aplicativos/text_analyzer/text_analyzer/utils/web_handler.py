@@ -99,7 +99,7 @@ for url in urls:
     vaga_textos[url] = fetch_webpage_text(url)
 
 # Pega o diretório raiz do projeto (text_analyzer/text_analyzer)
-diretorio_base = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+diretorio_base = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 caminho_json = os.path.join(diretorio_base, 'job_matcher', 'config', 'vagas_extraidas.json')
 
 # Salvar os dados extraídos no arquivo JSON
