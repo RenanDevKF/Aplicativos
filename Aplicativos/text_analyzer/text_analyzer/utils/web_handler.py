@@ -1,63 +1,102 @@
-import requests
+import os
+import json
 from bs4 import BeautifulSoup
+import requests
+from urllib.parse import urlparse
+from text_analyzer.job_matcher.config.selectors import SELECTORS
 
-def fetch_webpage_text(url: str) -> str:
+def fetch_webpage_text(url: str) -> dict:
     """
-    Faz o download do conteúdo de uma página da web e extrai o texto limpo.
-
-    A função acessa uma URL fornecida, realiza o download da página e extrai o texto relevante dos elementos HTML (p, div, span).
-    Se a página for acessada com sucesso, retorna o texto extraído. Se houver erro ao acessar a página ou ao processar o conteúdo,
-    serão levantadas exceções específicas.
-
+    Busca e extrai informações estruturadas de uma página de vaga de emprego.
+    
     Args:
-        url (str): URL da página a ser analisada.
+        url (str): URL da vaga de emprego.
 
     Returns:
-        str: Texto extraído da página, limpo e sem tags HTML.
-
-    Raises:
-        requests.RequestException: Se houver erro ao acessar a página (ex: falha de conexão, timeout, etc.).
-        ValueError: Se a URL não for válida ou se não for possível extrair texto relevante da página.
-
-    Exemplo:
-        > url = "https://www.exemplo.com"
-        > text = fetch_webpage_text(url)
-        > print(text)  # Exibe o texto extraído da página
-
-    Nota:
-        Caso o conteúdo extraído não tenha texto relevante, a função retorna uma mensagem padrão: "Nenhum texto relevante encontrado na página."
+        dict: Dicionário contendo título, descrição, empresa e localização da vaga,
+              ou uma chave "erro" em caso de falha.
     """
-    if not isinstance(url, str) or not url.startswith('http'):
-        raise ValueError(f"Erro: A URL fornecida '{url}' não é válida ou não começa com 'http'.")
-
     try:
+        if not isinstance(url, str) or not url.strip():
+            raise ValueError("A URL fornecida é inválida ou está vazia.")
+
         response = requests.get(url, timeout=10)
-        
-        # Verificando se a resposta tem código de erro
-        if response.status_code != 200:
-            return f"Erro HTTP ao acessar a página '{url}': {response.status_code} {response.text}"
-
-        # Continuando o processamento normal caso o status seja 200
+        response.raise_for_status()  # Levanta erro para códigos HTTP de falha
+    
         soup = BeautifulSoup(response.text, "html.parser")
-        paragraphs = soup.find_all(["p", "div", "span"])  # Busca por parágrafos, divs e spans
 
-        # Extrai e limpa o texto dos elementos encontrados
-        text = "\n".join([p.get_text(strip=True) for p in paragraphs])
+        # Detecta o site baseado no domínio
+        domain = urlparse(url).netloc.replace("www.", "")
+        if domain not in SELECTORS:
+            raise KeyError(f"Seletores não configurados para o domínio: {domain}")
 
-        if not text.strip():
-            return "Nenhum texto relevante encontrado na página."
+        # Extrai as informações da vaga
+        selectors = SELECTORS[domain]
+        vaga_info = {}
+        
+        for key in ["title", "description", "company", "location"]:
+            try:
+                vaga_info[key] = (
+                    soup.select_one(selectors[key]).get_text(strip=True)
+                    if selectors.get(key) and soup.select_one(selectors[key])
+                    else "N/A"
+                )
+            except Exception as e:
+                vaga_info[key] = "Erro ao extrair"
+                vaga_info[f"erro_{key}"] = str(e)
+                
+        return vaga_info
 
-        return text.strip()
-
-    except requests.exceptions.Timeout:
-        # Levanta a exceção Timeout para o teste
-        raise requests.exceptions.Timeout(f"Erro: A requisição para '{url}' excedeu o tempo limite.")
-
-    except requests.RequestException as e:
-        return f"Erro HTTP ao acessar a página '{url}': {e}"
-
-    except ValueError as e:
-        raise ValueError(f"Erro ao processar o conteúdo da página '{url}': {e}")
-
+    except requests.exceptions.RequestException as req_err:
+        return {"erro": f"Erro na requisição HTTP: {str(req_err)}"}
+    except KeyError as key_err:
+        return {"erro": f"Erro de configuração: {str(key_err)}"}
+    except ValueError as val_err:
+        return {"erro": f"Erro de validação: {str(val_err)}"}
     except Exception as e:
-        raise Exception(f"Erro inesperado ao acessar ou processar a página '{url}': {e}")
+        return {"erro": f"Erro inesperado: {str(e)}"}
+
+def salvar_em_json(dados, caminho_arquivo):
+    """
+    Salva os dados extraídos em um arquivo JSON.
+
+    Args:
+        dados (dict): Dados a serem salvos.
+        caminho_arquivo (str): Caminho completo do arquivo JSON.
+    """
+    try:
+        # Cria o diretório se não existir
+        os.makedirs(os.path.dirname(caminho_arquivo), exist_ok=True)
+
+        # Salva os dados no formato JSON
+        with open(caminho_arquivo, 'w', encoding='utf-8') as f:
+            json.dump(dados, f, ensure_ascii=False, indent=4)
+        print(f"Dados salvos em: {caminho_arquivo}")
+    except Exception as e:
+        print(f"Erro ao salvar o arquivo JSON: {e}")
+
+# Função para ler os links do arquivo
+def ler_links_do_arquivo(caminho_arquivo):
+    with open(caminho_arquivo, 'r') as arquivo:
+        links = [linha.strip() for linha in arquivo.readlines() if linha.strip()]
+    return links
+
+# Caminho para o arquivo com os links
+caminho_arquivo = 'links.txt'
+
+# Ler os links do arquivo
+urls = ler_links_do_arquivo(caminho_arquivo)
+
+# Dicionário para armazenar os textos extraídos de cada página
+vaga_textos = {}
+
+# Extrair os textos de cada URL
+for url in urls:
+    vaga_textos[url] = fetch_webpage_text(url)
+
+# Caminho do diretório onde os arquivos serão salvos (relativo)
+diretorio_base = os.path.dirname(os.path.abspath(__file__))  # Pega o diretório onde o script está localizado
+caminho_json = os.path.join(diretorio_base, 'config', 'vagas_extraidas.json')  # Diretório 'config' dentro do diretório do script
+
+# Salvar os dados extraídos no arquivo JSON
+salvar_em_json(vaga_textos, caminho_json)
