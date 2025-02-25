@@ -53,3 +53,38 @@ def get_speech_rate(self) -> Dict[str, float]:
             "syllables_per_second": syllables_per_second,
             "syllables_per_minute": syllables_per_minute
         }
+        
+def get_pitch_stats(self) -> Dict[str, float]:
+        """
+        Extrai estatísticas de pitch (tom) do áudio.
+        
+        Returns:
+            Dicionário com estatísticas de pitch
+        """
+        pitches, magnitudes = librosa.piptrack(y=self.y, sr=self.sr)
+        
+        # Filtrar pitches com magnitude significativa
+        pitches_filtered = []
+        for i in range(pitches.shape[1]):
+            index = magnitudes[:, i].argmax()
+            pitch = pitches[index, i]
+            if pitch > 0:  # Ignorar silêncio
+                pitches_filtered.append(pitch)
+        
+        if pitches_filtered:
+            pitch_array = np.array(pitches_filtered)
+            return {
+                "pitch_min": float(np.min(pitch_array)),
+                "pitch_max": float(np.max(pitch_array)),
+                "pitch_mean": float(np.mean(pitch_array)),
+                "pitch_std": float(np.std(pitch_array)),
+                "pitch_range": float(np.max(pitch_array) - np.min(pitch_array))
+            }
+        else:
+            return {
+                "pitch_min": 0.0,
+                "pitch_max": 0.0,
+                "pitch_mean": 0.0,
+                "pitch_std": 0.0,
+                "pitch_range": 0.0
+            }
