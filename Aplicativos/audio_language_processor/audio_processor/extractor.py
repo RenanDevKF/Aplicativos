@@ -29,3 +29,27 @@ class AudioExtractor:
         except Exception as e:
             print(f"Erro ao carregar o áudio: {e}")
             raise
+        
+def get_speech_rate(self) -> Dict[str, float]:
+        """
+        Calcula a taxa aproximada de fala usando os picos de energia.
+        
+        Returns:
+            Dicionário com estatísticas de taxa de fala
+        """
+        # Dividir o áudio em janelas e contar picos de energia
+        hop_length = int(self.sr * 0.01)  # Janela de 10ms
+        onset_env = librosa.onset.onset_strength(y=self.y, sr=self.sr, hop_length=hop_length)
+        onsets = librosa.onset.onset_detect(onset_envelope=onset_env, sr=self.sr, 
+                                           hop_length=hop_length)
+        
+        # Estimar sílabas a partir dos onsets
+        estimated_syllables = len(onsets)
+        syllables_per_second = estimated_syllables / self.duration
+        syllables_per_minute = syllables_per_second * 60
+        
+        return {
+            "syllables_detected": estimated_syllables,
+            "syllables_per_second": syllables_per_second,
+            "syllables_per_minute": syllables_per_minute
+        }
