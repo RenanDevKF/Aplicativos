@@ -1,0 +1,1 @@
+# Extrai dados de áudio

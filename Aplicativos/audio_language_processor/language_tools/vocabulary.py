@@ -1,0 +1,1 @@
+# Analisa vocabulario e frequencia
