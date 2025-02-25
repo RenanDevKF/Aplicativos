@@ -88,3 +88,65 @@ def get_pitch_stats(self) -> Dict[str, float]:
                 "pitch_std": 0.0,
                 "pitch_range": 0.0
             }
+            
+def segment_audio(self, min_silence_len: int = 500, silence_thresh: int = -40) -> List[Dict[str, Any]]:
+        """
+        Segmenta o áudio em trechos separados por silêncio.
+        
+        Args:
+            min_silence_len: Duração mínima do silêncio em ms
+            silence_thresh: Limiar de dB para considerar silêncio
+            
+        Returns:
+            Lista de segmentos com início, fim e duração
+        """
+        # Converter para dB
+        db = librosa.amplitude_to_db(np.abs(librosa.stft(self.y)), ref=np.max)
+        
+        # Máscara de silêncio
+        silence_mask = db.mean(axis=0) < silence_thresh
+        
+        # Converter frames para segundos
+        hop_length = 512  # Padrão do STFT
+        frame_time = hop_length / self.sr
+        
+        # Encontrar segmentos
+        segments = []
+        is_silence = True
+        current_start = 0
+        
+        for i, silent in enumerate(silence_mask):
+            # Transição de silêncio para som
+            if is_silence and not silent:
+                current_start = i * frame_time
+                is_silence = False
+            # Transição de som para silêncio
+            elif not is_silence and silent:
+                # Verificar se o silêncio é longo o suficiente
+                silence_start = i
+                long_silence = True
+                
+                # Olhar à frente para verificar se o silêncio dura o suficiente
+                min_silence_frames = min_silence_len / 1000 / frame_time
+                if i + int(min_silence_frames) < len(silence_mask):
+                    long_silence = all(silence_mask[i:i+int(min_silence_frames)])
+                
+                if long_silence:
+                    end_time = i * frame_time
+                    segments.append({
+                        "start": current_start,
+                        "end": end_time,
+                        "duration": end_time - current_start
+                    })
+                    is_silence = True
+        
+        # Adicionar último segmento se terminar com som
+        if not is_silence:
+            end_time = len(silence_mask) * frame_time
+            segments.append({
+                "start": current_start,
+                "end": end_time,
+                "duration": end_time - current_start
+            })
+        
+        return segments
