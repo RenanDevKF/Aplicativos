@@ -1,0 +1,1 @@
+# Gera flashcards em português e inglêsSS

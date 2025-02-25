@@ -1,0 +1,1 @@
+# Identifica padrões linguisticos

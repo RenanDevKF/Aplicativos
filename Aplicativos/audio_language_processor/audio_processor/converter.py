@@ -1,0 +1,1 @@
+# Converte áudio para texto
