@@ -73,4 +73,54 @@ class PronunciationAnalyzer:
             "pronunciation_score": self._calculate_pronunciation_score(similarity, correlation)
         }
         
-    
+    def detect_stress_patterns(self) -> List[Dict[str, Any]]:
+        """
+        Detecta padrões de acentuação e ênfase no áudio.
+        
+        Returns:
+            Lista de segmentos com informações de acentuação
+        """
+        # Extrair envelope de energia
+        hop_length = 512
+        onset_env = librosa.onset.onset_strength(y=self.user_y, sr=self.user_sr, 
+                                               hop_length=hop_length)
+        
+        # Detectar onsets (inícios de som/sílaba)
+        onsets = librosa.onset.onset_detect(onset_envelope=onset_env, sr=self.user_sr,
+                                          hop_length=hop_length)
+        onset_times = librosa.frames_to_time(onsets, sr=self.user_sr, hop_length=hop_length)
+        
+        # Extrair energia em cada onset
+        onset_strengths = onset_env[onsets] if len(onsets) > 0 else []
+        
+        # Identificar acentuações (picos de energia relativamente altos)
+        if len(onset_strengths) > 0:
+            mean_strength = np.mean(onset_strengths)
+            std_strength = np.std(onset_strengths)
+            
+            stress_segments = []
+            for i, (time, strength) in enumerate(zip(onset_times, onset_strengths)):
+                # Classificar nível de ênfase
+                if strength > mean_strength + 1.5 * std_strength:
+                    emphasis = "forte"
+                elif strength > mean_strength + 0.5 * std_strength:
+                    emphasis = "moderada"
+                else:
+                    emphasis = "fraca"
+                
+                # Calcular duração aproximada até próximo onset
+                if i < len(onset_times) - 1:
+                    duration = onset_times[i+1] - time
+                else:
+                    duration = 0.25  # Valor padrão para o último segmento
+                
+                stress_segments.append({
+                    "time": float(time),
+                    "strength": float(strength),
+                    "emphasis": emphasis,
+                    "duration": float(duration)
+                })
+            
+            return stress_segments
+        else:
+            return []
