@@ -122,4 +122,61 @@ class AudioAnalyzer:
                 "category": category
             }
     
-    
+
+    def _calculate_fluency_score(self, speech_rate: Dict, segment_stats: Dict, pause_stats: Dict) -> float:
+        """
+        Calcula uma pontuação de fluência baseada em características de fala.
+        
+        Returns:
+            Pontuação de fluência (0-100)
+        """
+        # Base para a pontuação
+        base_score = 50.0
+        
+        # Fator de taxa de fala - penaliza fala muito lenta ou muito rápida
+        speech_rate_factor = 0.0
+        spm = speech_rate["syllables_per_minute"]
+        if 200 <= spm <= 300:  # Faixa ideal
+            speech_rate_factor = 20.0
+        elif 150 <= spm < 200 or 300 < spm <= 350:  # Faixa aceitável
+            speech_rate_factor = 15.0
+        elif 100 <= spm < 150 or 350 < spm <= 400:  # Faixa menos ideal
+            speech_rate_factor = 10.0
+        else:  # Faixa problemática
+            speech_rate_factor = 5.0
+        
+        # Fator de consistência nos segmentos
+        consistency_factor = 0.0
+        if segment_stats["segment_count"] > 0:
+            # Menos variação na duração dos segmentos = mais consistência
+            cv = segment_stats["segment_duration_std"] / segment_stats["avg_segment_duration"] \
+                if segment_stats["avg_segment_duration"] > 0 else float('inf')
+            
+            if cv < 0.3:  # Muito consistente
+                consistency_factor = 15.0
+            elif cv < 0.5:  # Consistente
+                consistency_factor = 12.0
+            elif cv < 0.7:  # Moderadamente consistente
+                consistency_factor = 8.0
+            else:  # Pouco consistente
+                consistency_factor = 5.0
+        
+        # Fator de pausas
+        pause_factor = 0.0
+        if pause_stats["pause_count"] > 0:
+            avg_pause = pause_stats["avg_pause_duration"]
+            
+            if avg_pause < 0.3:  # Pausas curtas, natural
+                pause_factor = 15.0
+            elif avg_pause < 0.6:  # Pausas moderadas
+                pause_factor = 10.0
+            elif avg_pause < 1.0:  # Pausas longas
+                pause_factor = 5.0
+            else:  # Pausas muito longas
+                pause_factor = 0.0
+        
+        # Calcular pontuação final
+        fluency_score = base_score + speech_rate_factor + consistency_factor + pause_factor
+        
+        # Limitar a 100
+        return min(fluency_score, 100.0)
