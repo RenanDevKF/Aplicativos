@@ -1,8 +1,8 @@
 # Analisa carcteristicas de um audio
 
-import numpy as np
-import scipy.stats
-from typing import Dict, List, Any
+import numpy as np # Usado para cálculos estatísticos, como média (mean), desvio padrão (std), e mínimos/máximos.
+import scipy.stats # Fornece funções estatísticas avançadas, como norm.cdf (função de distribuição acumulada normal).
+from typing import Dict, List, Any # Define tipos de dados usados nos retornos e argumentos, melhorando a legibilidade e manutenção do código.
 
 class AudioAnalyzer:
     """Classe para analisar características extraídas de áudio para estudo de idiomas."""
@@ -24,16 +24,17 @@ class AudioAnalyzer:
                 Dicionário com análise de padrões de fala
             """
             # Obter taxa de fala
-            speech_rate = self.extractor.get_speech_rate()
+            speech_rate = self.extractor.get_speech_rate() # Obtém a taxa de fala (ex.: sílabas por minuto).
             
             # Obter estatísticas de pitch
-            pitch_stats = self.extractor.get_pitch_stats()
+            pitch_stats = self.extractor.get_pitch_stats() # Obtém estatísticas do pitch da fala (frequência fundamental).
             
             # Obter segmentos
-            segments = self.extractor.segment_audio()
+            segments = self.extractor.segment_audio() # Divide o áudio em segmentos baseados em pausas ou entonação.
+
             
             # Calcular estatísticas de duração dos segmentos
-            segment_durations = [seg["duration"] for seg in segments]
+            segment_durations = [seg["duration"] for seg in segments] # Lista com as durações de cada segmento do áudio.
             
             if segment_durations:
                 segment_stats = {
