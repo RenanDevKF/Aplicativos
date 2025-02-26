@@ -124,3 +124,26 @@ class PronunciationAnalyzer:
             return stress_segments
         else:
             return []
+        
+    def _calculate_pronunciation_score(self, similarity: float, correlation: float) -> float:
+        """
+        Calcula uma pontuação de pronúncia baseada em métricas de similaridade.
+        
+        Args:
+            similarity: Percentual de similaridade
+            correlation: Correlação entre os MFCCs
+            
+        Returns:
+            Pontuação de pronúncia (0-100)
+        """
+        # Pesos para cada componente
+        similarity_weight = 0.7
+        correlation_weight = 0.3
+        
+        # Ajustar correlação para escala 0-100
+        correlation_score = max(0, (correlation + 1) * 50)
+        
+        # Calcular pontuação ponderada
+        score = similarity_weight * similarity + correlation_weight * correlation_score
+        
+        return float(score)
