@@ -108,3 +108,22 @@ class ExerciseGenerator:
         return exercises
     
     
+    def _generate_question_from_sentence(self, sentence: str) -> str:
+        """
+        Gera uma pergunta simples a partir de uma frase.
+        
+        Args:
+            sentence: Frase para criar pergunta
+            
+        Returns:
+            Pergunta gerada
+        """
+        words = sentence.lower().split()
+        
+        # Perguntas simples baseadas no conteúdo
+        if len(words) >= 6:
+            return f"O que está sendo discutido na frase: '{sentence}'?"
+        elif len(words) >= 3:
+            return f"Qual é o assunto principal da frase ouvida?"
+        else:
+            return "Sobre o que é este áudio?"
