@@ -131,3 +131,89 @@ class VocabularyAnalyzer:
         phrases.sort(key=lambda x: x["count"], reverse=True)
         
         return phrases
+    
+    def get_language_level_estimate(self) -> Dict[str, Any]:
+        """
+        Estima o nível de dificuldade do vocabulário.
+        
+        Returns:
+            Dicionário com estimativa de nível de idioma e estatísticas
+        """
+        # Extrair vocabulário incluindo stopwords
+        vocab = self.extract_vocabulary(include_stopwords=True)
+        
+        if not vocab:
+            return {
+                "level": "indeterminado",
+                "confidence": 0.0,
+                "reason": "Texto muito curto ou sem palavras reconhecíveis"
+            }
+        
+        # Calcular estatísticas
+        word_lengths = [v["length"] for v in vocab]
+        avg_word_length = sum(word_lengths) / len(word_lengths)
+        
+        # Contar palavras únicas
+        unique_words = len(vocab)
+        
+        # Texto completo para análise de complexidade
+        cleaned_text = self._clean_text(self.text)
+        tokens = word_tokenize(cleaned_text)
+        sentences = [s.strip() for s in re.split(r'[.!?]', cleaned_text) if s.strip()]
+        
+        # Calcular comprimento médio de sentença
+        avg_sentence_length = len(tokens) / len(sentences) if sentences else 0
+        
+        # Usar heurísticas para estimar nível
+        # (valores aproximados baseados em estudos linguísticos)
+        level = "iniciante"
+        confidence = 0.6
+        reasons = []
+        
+        # Heurística 1: Comprimento médio de palavras
+        if avg_word_length > 6.5:
+            level = "avançado"
+            reasons.append(f"Palavras longas (média: {avg_word_length:.1f} caracteres)")
+        elif avg_word_length > 5.5:
+            level = "intermediário"
+            reasons.append(f"Palavras de comprimento médio ({avg_word_length:.1f} caracteres)")
+        else:
+            reasons.append(f"Palavras curtas (média: {avg_word_length:.1f} caracteres)")
+        
+        # Heurística 2: Comprimento médio de sentenças
+        if avg_sentence_length > 15:
+            level = max(level, "avançado")
+            confidence += 0.1
+            reasons.append(f"Sentenças longas (média: {avg_sentence_length:.1f} palavras)")
+        elif avg_sentence_length > 10:
+            level = max(level, "intermediário")
+            reasons.append(f"Sentenças de comprimento médio ({avg_sentence_length:.1f} palavras)")
+        else:
+            reasons.append(f"Sentenças curtas (média: {avg_sentence_length:.1f} palavras)")
+        
+        # Heurística 3: Diversidade de vocabulário
+        if unique_words > 100:
+            level = max(level, "avançado")
+            confidence += 0.1
+            reasons.append(f"Vocabulário diverso ({unique_words} palavras únicas)")
+        elif unique_words > 50:
+            level = max(level, "intermediário")
+            reasons.append(f"Vocabulário moderado ({unique_words} palavras únicas)")
+        else:
+            reasons.append(f"Vocabulário limitado ({unique_words} palavras únicas)")
+        
+        # Normalizar confiança
+        confidence = min(confidence, 1.0)
+        
+        return {
+            "level": level,
+            "confidence": confidence,
+            "reasons": reasons,
+            "stats": {
+                "unique_words": unique_words,
+                "avg_word_length": avg_word_length,
+                "avg_sentence_length": avg_sentence_length,
+                "total_words": len(tokens),
+                "total_sentences": len(sentences)
+            }
+        }
