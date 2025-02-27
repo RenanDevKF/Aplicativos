@@ -233,3 +233,22 @@ class VocabularyAnalyzer:
         # Substituir múltiplos espaços por um único
         text = re.sub(r'\s+', ' ', text)
         return text.strip()
+    
+    def _extract_ngrams(self, tokens: List[str], n: int) -> List[tuple]:
+        """
+        Extrai n-gramas (sequências de n palavras) de uma lista de tokens.
+        
+        Args:
+            tokens: Lista de tokens/palavras
+            n: Tamanho do n-grama
+            
+        Returns:
+            Lista de tuplas representando n-gramas
+        """
+        ngrams = []
+        for i in range(len(tokens) - n + 1):
+            ngram = tuple(tokens[i:i+n])
+            # Verificar se n-grama contém apenas palavras (não pontuação)
+            if all(token.isalpha() for token in ngram):
+                ngrams.append(ngram)
+        return ngrams
