@@ -217,3 +217,19 @@ class VocabularyAnalyzer:
                 "total_sentences": len(sentences)
             }
         }
+        
+    def _clean_text(self, text: str) -> str:
+        """
+        Limpa o texto para análise.
+        
+        Args:
+            text: Texto a ser limpo
+            
+        Returns:
+            Texto limpo
+        """
+        # Remover pontuação não necessária para divisão de sentenças
+        text = re.sub(r'[^\w\s.!?]', '', text)
+        # Substituir múltiplos espaços por um único
+        text = re.sub(r'\s+', ' ', text)
+        return text.strip()
