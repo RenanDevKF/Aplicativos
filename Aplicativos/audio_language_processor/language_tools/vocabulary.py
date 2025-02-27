@@ -95,3 +95,39 @@ class VocabularyAnalyzer:
             })
         
         return vocabulary
+    
+    def identify_phrases(self, min_occurrences: int = 2, 
+                         max_phrase_length: int = 4) -> List[Dict[str, Any]]:
+        """
+        Identifica frases e expressões recorrentes no texto.
+        
+        Args:
+            min_occurrences: Número mínimo de ocorrências para considerar uma frase
+            max_phrase_length: Número máximo de palavras na frase
+            
+        Returns:
+            Lista de dicionários com frases e suas estatísticas
+        """
+        # Limpar e tokenizar o texto
+        cleaned_text = self._clean_text(self.text)
+        tokens = word_tokenize(cleaned_text)
+        
+        # Encontrar n-gramas (sequências de n palavras)
+        phrases = []
+        for n in range(2, max_phrase_length + 1):
+            ngrams = self._extract_ngrams(tokens, n)
+            ngram_freq = FreqDist(ngrams)
+            
+            for ngram, count in ngram_freq.items():
+                if count >= min_occurrences:
+                    phrase = " ".join(ngram)
+                    phrases.append({
+                        "phrase": phrase,
+                        "count": count,
+                        "length": len(ngram)
+                    })
+        
+        # Ordenar por contagem (mais frequentes primeiro)
+        phrases.sort(key=lambda x: x["count"], reverse=True)
+        
+        return phrases
