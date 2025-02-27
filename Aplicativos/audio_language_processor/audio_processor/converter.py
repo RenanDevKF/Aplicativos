@@ -56,4 +56,59 @@ class AudioToTextConverter:
                     os.remove(temp_path)
                 return {"error": f"Erro na conversão: {str(e)}", "transcription": ""}
             
-    
+    def _process_wav_file(self, wav_path: str) -> Dict[str, Any]:
+        """
+        Processa um arquivo WAV com a biblioteca speech_recognition.
+        
+        Args:
+            wav_path: Caminho para o arquivo WAV
+            
+        Returns:
+            Dicionário com texto transcrito e informações de confiança
+        """
+        try:
+            with sr.AudioFile(wav_path) as source:
+                # Ajustar para ruído ambiente
+                self.recognizer.adjust_for_ambient_noise(source, duration=0.5)
+                
+                # Obter áudio
+                audio_data = self.recognizer.record(source)
+                
+                # Tentar reconhecer com Google (mais preciso)
+                try:
+                    result = self.recognizer.recognize_google(
+                        audio_data, 
+                        language=self.language,
+                        show_all=True
+                    )
+                    
+                    if result and isinstance(result, dict) and "alternative" in result:
+                        # Obter a alternativa mais confiável
+                        best_result = result["alternative"][0]
+                        return {
+                            "transcription": best_result["transcript"],
+                            "confidence": best_result.get("confidence", 0.0),
+                            "alternatives": [alt["transcript"] for alt in result["alternative"][1:]]
+                        }
+                    elif result and isinstance(result, list) and len(result) > 0:
+                        return {
+                            "transcription": result[0]["transcript"],
+                            "confidence": result[0].get("confidence", 0.0),
+                            "alternatives": [alt["transcript"] for alt in result[1:]]
+                        }
+                    else:
+                        return {"transcription": "", "confidence": 0.0, "alternatives": []}
+                        
+                except sr.UnknownValueError:
+                    # Fallback para Sphinx (offline, menos preciso)
+                    try:
+                        text = self.recognizer.recognize_sphinx(audio_data, language=self.language)
+                        return {"transcription": text, "confidence": 0.3, "engine": "sphinx"}
+                    except:
+                        return {"transcription": "", "confidence": 0.0, "error": "Fala não reconhecida"}
+                
+                except Exception as e:
+                    return {"transcription": "", "confidence": 0.0, "error": str(e)}
+        
+        except Exception as e:
+            return {"transcription": "", "confidence": 0.0, "error": f"Erro ao processar arquivo: {str(e)}"}
