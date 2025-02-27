@@ -112,3 +112,25 @@ class AudioToTextConverter:
         
         except Exception as e:
             return {"transcription": "", "confidence": 0.0, "error": f"Erro ao processar arquivo: {str(e)}"}
+        
+    
+    def _get_audio_format(self) -> str:
+        """
+        Determina o formato do arquivo de áudio pela extensão.
+        
+        Returns:
+            Formato do arquivo (mp3, wav, etc.)
+        """
+        extension = os.path.splitext(self.audio_path)[1].lower()
+        if extension.startswith('.'):
+            extension = extension[1:]
+            
+        if extension in ["mp3", "wav", "flac", "ogg", "m4a"]:
+            return extension
+        else:
+            # Tentar inferir formato
+            try:
+                AudioSegment.from_file(self.audio_path)
+                return "wav"  # Formato padrão se não for possível determinar
+            except:
+                raise ValueError(f"Formato de arquivo não suportado: {extension}")
