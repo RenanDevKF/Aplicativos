@@ -55,4 +55,43 @@ class VocabularyAnalyzer:
             self.stop_words = set(stopwords.words('english'))
             print(f"Stopwords para {language} não disponíveis. Usando inglês como fallback.")
             
-    
+    def extract_vocabulary(self, include_stopwords: bool = False, 
+                           min_word_length: int = 2) -> List[Dict[str, Any]]:
+        """
+        Extrai e analisa o vocabulário do texto.
+        
+        Args:
+            include_stopwords: Se True, inclui palavras comuns (stopwords)
+            min_word_length: Tamanho mínimo de palavra para incluir na análise
+            
+        Returns:
+            Lista de dicionários com palavras e suas estatísticas
+        """
+        # Limpar e tokenizar o texto
+        cleaned_text = self._clean_text(self.text)
+        tokens = word_tokenize(cleaned_text)
+        
+        # Filtrar tokens
+        filtered_tokens = []
+        for token in tokens:
+            # Verificar se é uma palavra válida
+            if (len(token) >= min_word_length and 
+                token.isalpha() and
+                (include_stopwords or token.lower() not in self.stop_words)):
+                filtered_tokens.append(token.lower())
+        
+        # Calcular frequência
+        freq_dist = FreqDist(filtered_tokens)
+        total_words = len(filtered_tokens)
+        
+        # Criar lista de vocabulário
+        vocabulary = []
+        for word, count in freq_dist.most_common():
+            vocabulary.append({
+                "word": word,
+                "count": count,
+                "frequency": count / total_words if total_words > 0 else 0,
+                "length": len(word)
+            })
+        
+        return vocabulary
