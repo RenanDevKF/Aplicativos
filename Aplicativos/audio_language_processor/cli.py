@@ -1,1 +1,97 @@
-# Interface de linha de comando
+import argparse
+import os
+import json
+from audio_processor.extractor import AudioExtractor
+from audio_processor.analyzer import AudioAnalyzer
+from audio_processor.converter import AudioToTextConverter
+from language_tools.vocabulary import VocabularyAnalyzer
+from language_tools.pronunciation import PronunciationAnalyzer
+from study_materials.exercises import ExerciseGenerator
+from utils.visualizer import AudioVisualizer
+from typing import Dict, Any
+
+def main():
+    """Função principal que implementa a interface de linha de comando."""
+    parser = argparse.ArgumentParser(
+        description='Processador de Áudio para Estudos de Linguagem'
+    )
+    
+    # Argumentos obrigatórios
+    parser.add_argument(
+        'audio_path', 
+        help='Caminho para o arquivo de áudio a ser analisado'
+    )
+    
+    # Argumentos opcionais
+    parser.add_argument(
+        '--language', '-l',
+        default='en-US',
+        help='Código do idioma (ex: en-US, pt-BR, es-ES)'
+    )
+    
+    parser.add_argument(
+        '--reference', '-r',
+        help='Caminho para arquivo de áudio de referência (opcional)'
+    )
+    
+    parser.add_argument(
+        '--output', '-o',
+        help='Caminho para salvar resultados (opcional)'
+    )
+    
+    parser.add_argument(
+        '--visualize', '-v',
+        action='store_true',
+        help='Gerar visualizações dos resultados'
+    )
+    
+    parser.add_argument(
+        '--exercises', '-e',
+        action='store_true',
+        help='Gerar exercícios baseados na análise'
+    )
+    
+    parser.add_argument(
+        '--difficulty', '-d',
+        choices=['fácil', 'médio', 'difícil'],
+        default='médio',
+        help='Nível de dificuldade dos exercícios gerados'
+    )
+    
+    # Analisar argumentos
+    args = parser.parse_args()
+    
+    # Verificar se o arquivo existe
+    if not os.path.isfile(args.audio_path):
+        print(f"Erro: arquivo de áudio não encontrado: {args.audio_path}")
+        return
+    
+    # Verificar arquivo de referência se fornecido
+    if args.reference and not os.path.isfile(args.reference):
+        print(f"Erro: arquivo de referência não encontrado: {args.reference}")
+        return
+    
+    # Processar o áudio
+    try:
+        results = process_audio(
+            args.audio_path,
+            args.language,
+            args.reference,
+            args.visualize,
+            args.exercises,
+            args.difficulty
+        )
+        
+        # Salvar resultados se caminho de saída for fornecido
+        if args.output:
+            with open(args.output, 'w', encoding='utf-8') as f:
+                json.dump(results, f, indent=2, ensure_ascii=False)
+            print(f"Resultados salvos em: {args.output}")
+        else:
+            # Exibir resultados resumidos
+            display_summary(results)
+    
+    except Exception as e:
+        print(f"Erro durante o processamento: {str(e)}")
+        import traceback
+        traceback.print_exc()
