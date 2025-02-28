@@ -95,3 +95,123 @@ def main():
         print(f"Erro durante o processamento: {str(e)}")
         import traceback
         traceback.print_exc()
+        
+def process_audio(
+    audio_path: str,
+    language: str,
+    reference_path: str = None,
+    visualize: bool = False,
+    generate_exercises: bool = False,
+    difficulty: str = 'médio'
+) -> Dict[str, Any]:
+    """
+    Processa um arquivo de áudio e realiza várias análises linguísticas.
+    
+    Args:
+        audio_path: Caminho para o arquivo de áudio a ser analisado
+        language: Código do idioma do áudio (ex: en-US, pt-BR)
+        reference_path: Caminho opcional para um áudio de referência para comparação
+        visualize: Se True, gera visualizações dos resultados
+        generate_exercises: Se True, gera exercícios baseados na análise
+        difficulty: Nível de dificuldade dos exercícios ('fácil', 'médio', 'difícil')
+        
+    Returns:
+        Dicionário contendo os resultados da análise
+    """
+    print(f"Processando arquivo: {audio_path}")
+    print(f"Idioma: {language}")
+    
+    # Inicializar componentes
+    extractor = AudioExtractor()
+    analyzer = AudioAnalyzer()
+    converter = AudioToTextConverter()
+    vocab_analyzer = VocabularyAnalyzer()
+    
+    # Extrair características do áudio
+    print("Extraindo características do áudio...")
+    audio_features = extractor.extract_features(audio_path)
+    
+    # Converter áudio para texto
+    print("Convertendo áudio para texto...")
+    text = converter.convert(audio_path, language)
+    
+    # Analisar características do áudio
+    print("Analisando características do áudio...")
+    audio_analysis = analyzer.analyze(audio_features, language)
+    
+    # Analisar vocabulário
+    print("Analisando vocabulário...")
+    vocab_analysis = vocab_analyzer.analyze(text, language)
+    
+    # Resultado inicial
+    results = {
+        "metadata": {
+            "arquivo": os.path.basename(audio_path),
+            "idioma": language,
+            "duração": audio_features.get("duration", 0)
+        },
+        "transcrição": text,
+        "análise_áudio": audio_analysis,
+        "análise_vocabulário": vocab_analysis
+    }
+    
+    # Comparar com referência se fornecida
+    if reference_path:
+        print(f"Comparando com referência: {reference_path}")
+        pronunciation_analyzer = PronunciationAnalyzer()
+        
+        # Extrair características do áudio de referência
+        ref_features = extractor.extract_features(reference_path)
+        
+        # Comparar pronúncia
+        pronunciation_results = pronunciation_analyzer.compare(
+            audio_features, 
+            ref_features,
+            language
+        )
+        
+        results["comparação_pronúncia"] = pronunciation_results
+    
+    # Gerar visualizações se solicitado
+    if visualize:
+        print("Gerando visualizações...")
+        visualizer = AudioVisualizer()
+        
+        # Determinar pasta de saída para visualizações
+        output_dir = os.path.dirname(audio_path)
+        base_filename = os.path.splitext(os.path.basename(audio_path))[0]
+        
+        # Gerar visualizações
+        visualization_paths = visualizer.generate_visualizations(
+            audio_features,
+            output_dir,
+            base_filename
+        )
+        
+        results["visualizações"] = visualization_paths
+    
+    # Gerar exercícios se solicitado
+    if generate_exercises:
+        print(f"Gerando exercícios (dificuldade: {difficulty})...")
+        exercise_generator = ExerciseGenerator()
+        
+        # Mapear dificuldade para valor numérico
+        difficulty_map = {
+            'fácil': 1,
+            'médio': 2,
+            'difícil': 3
+        }
+        
+        # Gerar exercícios
+        exercises = exercise_generator.generate(
+            text,
+            vocab_analysis,
+            audio_analysis,
+            language,
+            difficulty_map.get(difficulty, 2)
+        )
+        
+        results["exercícios"] = exercises
+    
+    print("Processamento concluído com sucesso!")
+    return results
