@@ -128,3 +128,47 @@ class AudioVisualizer:
         
         # Converter para base64
         return self._fig_to_base64(fig)
+    
+    def plot_vocabulary_stats(self, vocabulary: List[Dict[str, Any]], 
+                             limit: int = 10) -> str:
+        """
+        Cria um gráfico de frequência de vocabulário.
+        
+        Args:
+            vocabulary: Lista de dicionários com dados de vocabulário
+            limit: Número máximo de palavras para mostrar
+            
+        Returns:
+            String com imagem codificada em base64
+        """
+        if not vocabulary or len(vocabulary) == 0:
+            return ""
+        
+        # Limitar número de palavras
+        vocab_to_plot = vocabulary[:limit]
+        
+        # Extrair dados
+        words = [item["word"] for item in vocab_to_plot]
+        counts = [item["count"] for item in vocab_to_plot]
+        
+        # Criar figura
+        fig, ax = plt.subplots(figsize=self.fig_size)
+        
+        # Criar gráfico de barras
+        bars = ax.barh(words, counts, color='skyblue')
+        
+        # Adicionar valores
+        for bar in bars:
+            width = bar.get_width()
+            ax.text(width + 0.3, bar.get_y() + bar.get_height()/2, 
+                   f"{width:.0f}", ha='left', va='center')
+        
+        # Configurar eixos
+        ax.set_xlabel("Frequência")
+        ax.set_title("Palavras Mais Frequentes")
+        ax.invert_yaxis()  # Inverter eixo y para palavras mais frequentes no topo
+        
+        plt.tight_layout()
+        
+        # Converter para base64
+        return self._fig_to_base64(fig)
