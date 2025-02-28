@@ -215,3 +215,81 @@ def process_audio(
     
     print("Processamento concluído com sucesso!")
     return results
+
+
+def display_summary(results: Dict[str, Any]) -> None:
+    """
+    Exibe um resumo dos resultados da análise no terminal.
+    
+    Args:
+        results: Dicionário contendo os resultados da análise
+    """
+    print("\n" + "="*60)
+    print(f"RESUMO DA ANÁLISE")
+    print("="*60)
+    
+    # Metadados
+    print(f"\nArquivo: {results['metadata']['arquivo']}")
+    print(f"Idioma: {results['metadata']['idioma']}")
+    print(f"Duração: {results['metadata']['duração']:.2f} segundos")
+    
+    # Transcrição (primeiras 150 caracteres)
+    text = results.get('transcrição', '')
+    if text:
+        print(f"\nTranscrição (início): {text[:150]}{'...' if len(text) > 150 else ''}")
+    
+    # Estatísticas de áudio
+    audio_analysis = results.get('análise_áudio', {})
+    if audio_analysis:
+        print("\nEstatísticas de áudio:")
+        print(f"- Ritmo médio: {audio_analysis.get('ritmo_médio', 'N/A')} palavras/min")
+        print(f"- Pausas: {audio_analysis.get('número_pausas', 'N/A')}")
+        print(f"- Clareza: {audio_analysis.get('clareza', 'N/A')}/10")
+    
+    # Estatísticas de vocabulário
+    vocab_analysis = results.get('análise_vocabulário', {})
+    if vocab_analysis:
+        print("\nEstatísticas de vocabulário:")
+        print(f"- Total de palavras: {vocab_analysis.get('total_palavras', 'N/A')}")
+        print(f"- Palavras únicas: {vocab_analysis.get('palavras_únicas', 'N/A')}")
+        print(f"- Nível de complexidade: {vocab_analysis.get('nível_complexidade', 'N/A')}/10")
+        
+        # Palavras mais frequentes
+        if 'palavras_frequentes' in vocab_analysis and vocab_analysis['palavras_frequentes']:
+            print("\nPalavras mais frequentes:")
+            for word_info in vocab_analysis['palavras_frequentes'][:5]:
+                print(f"- {word_info['palavra']}: {word_info['frequência']} ocorrências")
+    
+    # Comparação de pronúncia
+    pronunciation = results.get('comparação_pronúncia', {})
+    if pronunciation:
+        print("\nComparação de pronúncia:")
+        print(f"- Pontuação geral: {pronunciation.get('pontuação_geral', 'N/A')}/100")
+        print(f"- Precisão fonética: {pronunciation.get('precisão_fonética', 'N/A')}/10")
+        
+        # Áreas para melhoria
+        if 'áreas_melhoria' in pronunciation and pronunciation['áreas_melhoria']:
+            print("\nÁreas para melhoria:")
+            for area in pronunciation['áreas_melhoria'][:3]:
+                print(f"- {area['nome']}: {area['descrição']}")
+    
+    # Exercícios
+    exercises = results.get('exercícios', {})
+    if exercises:
+        print(f"\nExercícios gerados: {len(exercises.get('itens', []))}")
+        print(f"Dificuldade: {exercises.get('dificuldade', 'N/A')}")
+    
+    # Visualizações
+    visualizations = results.get('visualizações', [])
+    if visualizations:
+        print(f"\nVisualizações geradas: {len(visualizations)}")
+        for viz_path in visualizations[:3]:
+            print(f"- {viz_path}")
+    
+    print("\n" + "="*60)
+    print("Para ver resultados completos, use a opção --output para salvar em arquivo")
+    print("="*60 + "\n")
+
+
+if __name__ == "__main__":
+    main()
