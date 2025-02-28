@@ -73,3 +73,58 @@ class AudioVisualizer:
         return self._fig_to_base64(fig)
     
     
+    def plot_pronunciation_comparison(self, pronunciation_analysis: Dict[str, Any]) -> str:
+        """
+        Cria um gráfico visual comparando pronúncia do usuário com referência.
+        
+        Args:
+            pronunciation_analysis: Dicionário com análise de pronúncia
+            
+        Returns:
+            String com imagem codificada em base64
+        """
+        if not pronunciation_analysis or "similarity_percentage" not in pronunciation_analysis:
+            return ""
+        
+        # Extrair dados
+        similarity = pronunciation_analysis.get("similarity_percentage", 0)
+        correlation = pronunciation_analysis.get("correlation", 0)
+        score = pronunciation_analysis.get("pronunciation_score", 0)
+        
+        # Criar figura
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=self.fig_size)
+        
+        # Gráfico 1: Medidor de similaridade
+        self._create_gauge(ax1, similarity, "Similaridade", "%")
+        
+        # Gráfico 2: Pontuação geral
+        categories = ['Pronúncia', 'Entonação', 'Ritmo', 'Fluência']
+        
+        # Valores de exemplo (ajustar conforme necessário)
+        values = [
+            score, 
+            min(max(correlation * 100, 0), 100),
+            min(max((similarity - 20), 0), 100),  # Valor derivado da similaridade
+            min(max((score - 10), 0), 100)      # Valor derivado da pontuação
+        ]
+        
+        # Normalizar valores para 0-1
+        values = [v / 100 for v in values]
+        
+        # Configurar radar chart
+        angles = np.linspace(0, 2*np.pi, len(categories), endpoint=False).tolist()
+        angles += angles[:1]  # Fechar o polígono
+        values += values[:1]  # Fechar o polígono
+        
+        ax2.polar(angles, values, marker='o')
+        ax2.fill(angles, values, alpha=0.3)
+        ax2.set_xticks(angles[:-1])
+        ax2.set_xticklabels(categories)
+        ax2.set_yticks([0.25, 0.5, 0.75, 1.0])
+        ax2.set_yticklabels(['25', '50', '75', '100'])
+        ax2.set_title("Pontuação por Categoria")
+        
+        plt.tight_layout()
+        
+        # Converter para base64
+        return self._fig_to_base64(fig)
