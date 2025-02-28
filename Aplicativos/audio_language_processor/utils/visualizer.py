@@ -172,3 +172,44 @@ class AudioVisualizer:
         
         # Converter para base64
         return self._fig_to_base64(fig)
+    
+    def _create_gauge(self, ax, value: float, label: str, unit: str) -> None:
+        """
+        Cria um gráfico de medidor (gauge).
+        
+        Args:
+            ax: Axes do matplotlib
+            value: Valor a ser exibido (0-100)
+            label: Rótulo do medidor
+            unit: Unidade de medida
+        """
+        # Limitar valor entre 0-100
+        value = max(0, min(100, value))
+        
+        # Criar arco do medidor
+        theta = np.linspace(3*np.pi/4, 9*np.pi/4, 100)
+        r = 0.8
+        x = r * np.cos(theta)
+        y = r * np.sin(theta)
+        
+        # Desenhar arco de fundo
+        ax.plot(x, y, color='lightgray', linewidth=15, alpha=0.3)
+        
+        # Calcular posição do valor
+        value_theta = 3*np.pi/4 + (value/100) * (6*np.pi/4)
+        idx = max(0, min(int((value/100) * 100), 99))
+        
+        # Desenhar arco colorido até o valor
+        ax.plot(x[:idx+1], y[:idx+1], color='green', linewidth=15, alpha=0.8)
+        
+        # Adicionar texto de valor
+        ax.text(0, -0.2, f"{value:.1f}{unit}", ha='center', va='center', fontsize=18)
+        
+        # Adicionar rótulo
+        ax.text(0, 0.3, label, ha='center', va='center', fontsize=14)
+        
+        # Configurar eixos
+        ax.set_xlim(-1, 1)
+        ax.set_ylim(-1, 1)
+        ax.axis('equal')
+        ax.axis('off')
