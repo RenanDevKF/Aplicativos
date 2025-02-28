@@ -213,3 +213,23 @@ class AudioVisualizer:
         ax.set_ylim(-1, 1)
         ax.axis('equal')
         ax.axis('off')
+        
+    
+    def _fig_to_base64(self, fig) -> str:
+        """
+        Converte uma figura matplotlib para string base64.
+        
+        Args:
+            fig: Figura matplotlib
+            
+        Returns:
+            String com imagem codificada em base64
+        """
+        buffer = io.BytesIO()
+        fig.savefig(buffer, format='png', dpi=self.dpi)
+        buffer.seek(0)
+        image_png = buffer.getvalue()
+        buffer.close()
+        plt.close(fig)
+        
+        return base64.b64encode(image_png).decode('utf-8')
