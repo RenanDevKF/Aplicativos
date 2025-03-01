@@ -1,10 +1,12 @@
-# Converte áudio para texto
-
 import speech_recognition as sr
 from pydub import AudioSegment
 import os
 import tempfile
 from typing import Dict, Any, Optional
+import logging
+
+# Configuração de log
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class AudioToTextConverter:
     """Classe para converter áudio em texto usando reconhecimento de fala."""
@@ -39,7 +41,6 @@ class AudioToTextConverter:
         if audio_format == "wav":
             # Processar WAV diretamente
             return self._process_wav_file(self.audio_path)
-            
         else:
             # Converter para WAV temporário e processar
             with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_wav:
@@ -52,6 +53,7 @@ class AudioToTextConverter:
                 os.remove(temp_path)
                 return result
             except Exception as e:
+                logging.error(f"Erro na conversão de áudio: {str(e)}")
                 if os.path.exists(temp_path):
                     os.remove(temp_path)
                 return {"error": f"Erro na conversão: {str(e)}", "transcription": ""}
@@ -104,13 +106,16 @@ class AudioToTextConverter:
                     try:
                         text = self.recognizer.recognize_sphinx(audio_data, language=self.language)
                         return {"transcription": text, "confidence": 0.3, "engine": "sphinx"}
-                    except:
+                    except Exception as e:
+                        logging.error(f"Erro ao tentar usar Sphinx: {str(e)}")
                         return {"transcription": "", "confidence": 0.0, "error": "Fala não reconhecida"}
                 
                 except Exception as e:
+                    logging.error(f"Erro ao reconhecer áudio com Google: {str(e)}")
                     return {"transcription": "", "confidence": 0.0, "error": str(e)}
         
         except Exception as e:
+            logging.error(f"Erro ao processar arquivo WAV: {str(e)}")
             return {"transcription": "", "confidence": 0.0, "error": f"Erro ao processar arquivo: {str(e)}"}
         
     
@@ -132,5 +137,6 @@ class AudioToTextConverter:
             try:
                 AudioSegment.from_file(self.audio_path)
                 return "wav"  # Formato padrão se não for possível determinar
-            except:
+            except Exception as e:
+                logging.error(f"Erro ao tentar determinar formato: {str(e)}")
                 raise ValueError(f"Formato de arquivo não suportado: {extension}")
