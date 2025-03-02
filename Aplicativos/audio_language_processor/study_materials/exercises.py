@@ -1,4 +1,4 @@
-# Cria exercicios com audio e textos
+# Cria exercícios com áudio e textos
 
 from typing import List, Dict, Any
 import random
@@ -24,106 +24,111 @@ class ExerciseGenerator:
         self.speech_analysis = speech_analysis
         self.pronunciation_analysis = pronunciation_analysis
         self.vocabulary = vocabulary
-    
+
     def generate_pronunciation_exercises(self, difficulty: str = "médio") -> List[Dict[str, Any]]:
         """
         Gera exercícios focados em pronúncia.
-        
+
         Args:
             difficulty: Nível de dificuldade ("fácil", "médio", "difícil")
-            
+
         Returns:
             Lista de exercícios de pronúncia
         """
         exercises = []
         
+        if not isinstance(difficulty, str) or difficulty not in {"fácil", "médio", "difícil"}:
+            raise ValueError("O nível de dificuldade deve ser 'fácil', 'médio' ou 'difícil'.")
+
         if not self.transcription:
             return [{"type": "error", "message": "Transcrição não disponível para criar exercícios"}]
         
-        # Dividir a transcrição em sentenças
-        sentences = [s.strip() for s in self.transcription.split('.') if s.strip()]
-        
-        # Criar exercícios com base no nível de dificuldade
-        if difficulty == "fácil":
-            # Repetição de palavras isoladas
-            if self.vocabulary:
+        try:
+            sentences = [s.strip() for s in self.transcription.split('.') if s.strip()]
+        except Exception as e:
+            return [{"type": "error", "message": f"Erro ao processar a transcrição: {str(e)}"}]
+
+        try:
+            if difficulty == "fácil":
+                if not self.vocabulary or not isinstance(self.vocabulary, list):
+                    return [{"type": "error", "message": "Vocabulário não disponível ou em formato inválido"}]
+
                 for i in range(min(5, len(self.vocabulary))):
-                    word = self.vocabulary[i]["word"]
+                    word = self.vocabulary[i].get("word")
+                    if word:
+                        exercises.append({
+                            "type": "repetição_palavra",
+                            "instruction": f"Repita a palavra: {word}",
+                            "target_word": word,
+                            "difficulty": "fácil"
+                        })
+
+            elif difficulty == "médio":
+                short_sentences = [s for s in sentences if len(s.split()) <= 8]
+                for i in range(min(3, len(short_sentences))):
                     exercises.append({
-                        "type": "repetição_palavra",
-                        "instruction": f"Repita a palavra: {word}",
-                        "target_word": word,
-                        "difficulty": "fácil"
+                        "type": "repetição_frase",
+                        "instruction": f"Repita a frase: {short_sentences[i]}",
+                        "target_sentence": short_sentences[i],
+                        "difficulty": "médio"
                     })
-        
-        elif difficulty == "médio":
-            # Repetição de frases curtas
-            short_sentences = [s for s in sentences if len(s.split()) <= 8]
-            for i in range(min(3, len(short_sentences))):
-                sentence = short_sentences[i]
-                exercises.append({
-                    "type": "repetição_frase",
-                    "instruction": f"Repita a frase: {sentence}",
-                    "target_sentence": sentence,
-                    "difficulty": "médio"
-                })
-                
-            # Exercício de ritmo
-            if self.speech_analysis and "speech_rate" in self.speech_analysis:
-                target_rate = self.speech_analysis["speech_rate"]["syllables_per_minute"]
-                exercises.append({
-                    "type": "ritmo_fala",
-                    "instruction": f"Tente falar com uma taxa de {target_rate:.1f} sílabas por minuto",
-                    "target_rate": target_rate,
-                    "difficulty": "médio"
-                })
-        
-        else:  # difícil
-            # Repetição de frases longas
-            long_sentences = [s for s in sentences if len(s.split()) > 8]
-            for i in range(min(2, len(long_sentences))):
-                sentence = long_sentences[i]
-                exercises.append({
-                    "type": "repetição_frase_complexa",
-                    "instruction": f"Repita a frase mantendo o ritmo e entonação natural: {sentence}",
-                    "target_sentence": sentence,
-                    "difficulty": "difícil"
-                })
-                
-            # Exercício de entonação
-            if self.pronunciation_analysis and "stress_patterns" in self.pronunciation_analysis:
-                stress_pattern = self.pronunciation_analysis["stress_patterns"]
-                if isinstance(stress_pattern, list) and len(stress_pattern) > 0:
-                    # Escolher uma frase e marcar sílabas enfatizadas
-                    if sentences:
-                        sentence = random.choice(sentences)
+
+                if self.speech_analysis and isinstance(self.speech_analysis, dict):
+                    speech_rate = self.speech_analysis.get("speech_rate", {}).get("syllables_per_minute")
+                    if speech_rate:
+                        exercises.append({
+                            "type": "ritmo_fala",
+                            "instruction": f"Tente falar com uma taxa de {speech_rate:.1f} sílabas por minuto",
+                            "target_rate": speech_rate,
+                            "difficulty": "médio"
+                        })
+
+            else:  # difícil
+                long_sentences = [s for s in sentences if len(s.split()) > 8]
+                for i in range(min(2, len(long_sentences))):
+                    exercises.append({
+                        "type": "repetição_frase_complexa",
+                        "instruction": f"Repita a frase mantendo o ritmo e entonação natural: {long_sentences[i]}",
+                        "target_sentence": long_sentences[i],
+                        "difficulty": "difícil"
+                    })
+
+                if self.pronunciation_analysis and isinstance(self.pronunciation_analysis, dict):
+                    stress_pattern = self.pronunciation_analysis.get("stress_patterns")
+                    if isinstance(stress_pattern, list) and stress_pattern and sentences:
                         exercises.append({
                             "type": "entonação",
-                            "instruction": f"Pratique a entonação correta da frase: {sentence}",
-                            "target_sentence": sentence,
+                            "instruction": f"Pratique a entonação correta da frase: {random.choice(sentences)}",
                             "hint": "Preste atenção nas sílabas enfatizadas",
                             "difficulty": "difícil"
                         })
-        
+
+        except Exception as e:
+            return [{"type": "error", "message": f"Erro ao gerar exercícios: {str(e)}"}]
+
         return exercises
-    
-    
+
     def _generate_question_from_sentence(self, sentence: str) -> str:
         """
         Gera uma pergunta simples a partir de uma frase.
-        
+
         Args:
             sentence: Frase para criar pergunta
-            
+
         Returns:
             Pergunta gerada
         """
+        if not isinstance(sentence, str) or not sentence.strip():
+            raise ValueError("A frase deve ser uma string não vazia.")
+
         words = sentence.lower().split()
-        
-        # Perguntas simples baseadas no conteúdo
-        if len(words) >= 6:
-            return f"O que está sendo discutido na frase: '{sentence}'?"
-        elif len(words) >= 3:
-            return f"Qual é o assunto principal da frase ouvida?"
-        else:
-            return "Sobre o que é este áudio?"
+
+        try:
+            if len(words) >= 6:
+                return f"O que está sendo discutido na frase: '{sentence}'?"
+            elif len(words) >= 3:
+                return f"Qual é o assunto principal da frase ouvida?"
+            else:
+                return "Sobre o que é este áudio?"
+        except Exception as e:
+            return f"Erro ao gerar pergunta: {str(e)}"
