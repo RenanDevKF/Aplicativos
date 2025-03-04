@@ -9,7 +9,10 @@ class AudioAnalyzer:
         Inicializa o analisador com um extrator de áudio.
         
         Args:
-            extractor: Instância de AudioExtractor
+            extractor: Instância de AudioExtractor, responsável por extrair informações do áudio.
+        
+        Raises:
+            AttributeError: Se o extractor não possuir os métodos necessários.
         """
         self.extractor = extractor
         
@@ -24,7 +27,16 @@ class AudioAnalyzer:
         Analisa padrões de fala como ritmo, entonação e pausas.
         
         Returns:
-            Dicionário com análise de padrões de fala
+            dict: Dicionário contendo as métricas analisadas:
+                - speech_rate (dict): Taxa de fala.
+                - pitch_stats (dict): Estatísticas de entonação.
+                - segment_stats (dict): Estatísticas dos segmentos de áudio.
+                - pause_stats (dict): Estatísticas das pausas.
+                - speech_rate_percentile (dict): Classificação da taxa de fala.
+                - fluency_score (float): Pontuação de fluência calculada.
+        
+        Raises:
+            RuntimeError: Se ocorrer um erro ao extrair os dados do áudio.
         """
         try:
             speech_rate = self.extractor.get_speech_rate()
@@ -90,7 +102,15 @@ class AudioAnalyzer:
         
     def _classify_speech_rate(self, syllables_per_minute: float) -> Dict[str, Any]:
         """
-        Classifica a taxa de fala.
+        Classifica a taxa de fala com base na média e no desvio padrão esperado.
+        
+        Args:
+            syllables_per_minute (float): Número de sílabas faladas por minuto.
+        
+        Returns:
+            dict: Classificação da taxa de fala contendo:
+                - z_score (float): Pontuação padronizada.
+                - category (str): Classificação textual da taxa de fala.
         """
         mean_spm = 250.0
         std_spm = 50.0
@@ -119,6 +139,14 @@ class AudioAnalyzer:
     def _calculate_fluency_score(self, speech_rate: Dict, segment_stats: Dict, pause_stats: Dict) -> float:
         """
         Calcula uma pontuação de fluência baseada em características de fala.
+        
+        Args:
+            speech_rate (dict): Dados da taxa de fala.
+            segment_stats (dict): Estatísticas dos segmentos de áudio.
+            pause_stats (dict): Estatísticas das pausas.
+        
+        Returns:
+            float: Pontuação de fluência entre 0 e 100.
         """
         base_score = 50.0
         
