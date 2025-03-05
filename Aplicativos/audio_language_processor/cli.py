@@ -10,8 +10,21 @@ from study_materials.exercises import ExerciseGenerator
 from utils.visualizer import AudioVisualizer
 from typing import Dict, Any
 
+
 def main():
-    """Função principal que implementa a interface de linha de comando."""
+    """
+    Função principal que implementa a interface de linha de comando para o processador de áudio.
+
+    Esta função configura e analisa os argumentos da linha de comando, verifica a existência dos arquivos de áudio
+    e referência, e chama a função `process_audio` para realizar a análise. Os resultados podem ser salvos em um
+    arquivo JSON ou exibidos no terminal.
+
+    Args:
+        Nenhum (os argumentos são passados via linha de comando).
+
+    Returns:
+        None
+    """
     parser = argparse.ArgumentParser(
         description='Processador de Áudio para Estudos de Linguagem'
     )
@@ -95,7 +108,8 @@ def main():
         print(f"Erro durante o processamento: {str(e)}")
         import traceback
         traceback.print_exc()
-        
+
+
 def process_audio(
     audio_path: str,
     language: str,
@@ -106,17 +120,21 @@ def process_audio(
 ) -> Dict[str, Any]:
     """
     Processa um arquivo de áudio e realiza várias análises linguísticas.
-    
+
+    Esta função extrai características do áudio, converte o áudio para texto, analisa o vocabulário e a pronúncia,
+    e gera visualizações e exercícios, se solicitado.
+
     Args:
-        audio_path: Caminho para o arquivo de áudio a ser analisado
-        language: Código do idioma do áudio (ex: en-US, pt-BR)
-        reference_path: Caminho opcional para um áudio de referência para comparação
-        visualize: Se True, gera visualizações dos resultados
-        generate_exercises: Se True, gera exercícios baseados na análise
-        difficulty: Nível de dificuldade dos exercícios ('fácil', 'médio', 'difícil')
-        
+        audio_path (str): Caminho para o arquivo de áudio a ser analisado.
+        language (str): Código do idioma do áudio (ex: en-US, pt-BR).
+        reference_path (str, optional): Caminho para um áudio de referência para comparação. Defaults to None.
+        visualize (bool, optional): Se True, gera visualizações dos resultados. Defaults to False.
+        generate_exercises (bool, optional): Se True, gera exercícios baseados na análise. Defaults to False.
+        difficulty (str, optional): Nível de dificuldade dos exercícios ('fácil', 'médio', 'difícil'). Defaults to 'médio'.
+
     Returns:
-        Dicionário contendo os resultados da análise
+        Dict[str, Any]: Dicionário contendo os resultados da análise, incluindo metadados, transcrição, análises de áudio e vocabulário,
+        comparação de pronúncia (se aplicável), visualizações (se aplicável) e exercícios (se aplicável).
     """
     print(f"Processando arquivo: {audio_path}")
     print(f"Idioma: {language}")
@@ -220,9 +238,16 @@ def process_audio(
 def display_summary(results: Dict[str, Any]) -> None:
     """
     Exibe um resumo dos resultados da análise no terminal.
-    
+
+    Esta função formata e exibe um resumo dos resultados da análise de áudio, incluindo metadados, transcrição,
+    estatísticas de áudio e vocabulário, comparação de pronúncia (se aplicável), exercícios (se aplicável) e
+    visualizações (se aplicável).
+
     Args:
-        results: Dicionário contendo os resultados da análise
+        results (Dict[str, Any]): Dicionário contendo os resultados da análise.
+
+    Returns:
+        None
     """
     print("\n" + "="*60)
     print(f"RESUMO DA ANÁLISE")
