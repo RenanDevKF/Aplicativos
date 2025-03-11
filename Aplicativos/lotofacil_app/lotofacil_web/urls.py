@@ -15,8 +15,16 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
+from django.http import HttpResponse
+from lotofacil_analyzer.views import home
+
+
+def home(request):
+    return HttpResponse("<h1>Bem-vindo ao Lotofácil App!</h1>")
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('usuarios/', include('usuarios.urls')),
+    path('', home, name='home'),  # Adiciona uma rota para a raiz
 ]

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Histórico de Jogos</h2>
+
+{% if jogos %}
+    <table border="1">
+        <tr>
+            <th>Data</th>
+            <th>Números Gerados</th>
+        </tr>
+        {% for jogo in jogos %}
+        <tr>
+            <td>{{ jogo.data_geracao|date:"d/m/Y H:i" }}</td>
+            <td>{{ jogo.numeros }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <p>Você ainda não gerou nenhum jogo.</p>
+{% endif %}
+
+{% endblock %}
