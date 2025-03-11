@@ -1,0 +1,43 @@
+# Ambiente virtual (evita versionar dependências instaladas)
+venv/
+ll_env/
+*.pyc
+*.pyo
+__pycache__/
+
+# Configurações específicas do sistema operacional
+.DS_Store  # macOS
+Thumbs.db  # Windows
+
+# Banco de dados SQLite (se estiver usando)
+db.sqlite3
+*.sqlite3
+
+# Configurações e credenciais (caso use um .env)
+.env
+*.env
+
+# Arquivos de logs
+logs/
+*.log
+
+# Arquivos temporários
+tmp/
+*.swp
+*.swo
+
+# Migrations que não foram aplicadas ainda
+*/migrations/*.pyc
+*/migrations/*.pyo
+*/migrations/__pycache__/
+
+# Arquivos do VS Code (se estiver usando)
+.vscode/
+.history/
+
+# Arquivos do PyCharm (se estiver usando)
+.idea/
+
+# Arquivos de dependências gerados pelo Django
+staticfiles/
+media/

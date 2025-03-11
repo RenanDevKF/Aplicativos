@@ -1,10 +1,10 @@
-# Cria exercícios com áudio e textos
-
 from typing import List, Dict, Any
 import random
 
 class ExerciseGenerator:
-    """Classe para gerar exercícios de estudo de idiomas baseados em análise de áudio."""
+    """
+    Classe para gerar exercícios de estudo de idiomas baseados em análise de áudio.
+    """
     
     def __init__(self, 
                  transcription: str = None, 
@@ -15,10 +15,10 @@ class ExerciseGenerator:
         Inicializa o gerador de exercícios.
         
         Args:
-            transcription: Transcrição do áudio (opcional)
-            speech_analysis: Análise de padrões de fala (opcional)
-            pronunciation_analysis: Análise de pronúncia (opcional)
-            vocabulary: Lista de palavras detectadas com info de frequência (opcional)
+            transcription (str, opcional): Transcrição do áudio.
+            speech_analysis (Dict[str, Any], opcional): Análise de padrões de fala.
+            pronunciation_analysis (Dict[str, Any], opcional): Análise de pronúncia.
+            vocabulary (List[Dict[str, Any]], opcional): Lista de palavras detectadas com informações de frequência.
         """
         self.transcription = transcription
         self.speech_analysis = speech_analysis
@@ -27,13 +27,16 @@ class ExerciseGenerator:
 
     def generate_pronunciation_exercises(self, difficulty: str = "médio") -> List[Dict[str, Any]]:
         """
-        Gera exercícios focados em pronúncia.
+        Gera exercícios focados em pronúncia com base na transcrição do áudio.
 
         Args:
-            difficulty: Nível de dificuldade ("fácil", "médio", "difícil")
+            difficulty (str, opcional): Nível de dificuldade do exercício. Pode ser "fácil", "médio" ou "difícil".
 
         Returns:
-            Lista de exercícios de pronúncia
+            List[Dict[str, Any]]: Lista de dicionários contendo os exercícios gerados.
+        
+        Raises:
+            ValueError: Se o nível de dificuldade informado for inválido.
         """
         exercises = []
         
@@ -110,13 +113,16 @@ class ExerciseGenerator:
 
     def _generate_question_from_sentence(self, sentence: str) -> str:
         """
-        Gera uma pergunta simples a partir de uma frase.
+        Gera uma pergunta simples a partir de uma frase fornecida.
 
         Args:
-            sentence: Frase para criar pergunta
+            sentence (str): Frase usada como base para a criação da pergunta.
 
         Returns:
-            Pergunta gerada
+            str: Pergunta gerada a partir da frase.
+        
+        Raises:
+            ValueError: Se a frase não for uma string válida e não vazia.
         """
         if not isinstance(sentence, str) or not sentence.strip():
             raise ValueError("A frase deve ser uma string não vazia.")
