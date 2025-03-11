@@ -30,5 +30,8 @@ def logout_usuario(request):
     logout(request)
     return redirect("login")
 
-
+@login_required
+def historico_jogos(request):
+    jogos = JogoGerado.objects.filter(usuario=request.user).order_by("-data_geracao")  # Pega os jogos do usuário logado
+    return render(request, "usuarios/historico.html", {"jogos": jogos})
 
