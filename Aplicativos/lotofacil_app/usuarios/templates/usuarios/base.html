@@ -1,3 +1,29 @@
-{% if user.is_authenticated %}
-    <a href="{% url 'historico' %}">Meu Histórico</a>
-{% endif %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}LotoFácil App{% endblock %}</title>
+</head>
+<body>
+    <header>
+        <h1>LotoFácil App</h1>
+        <nav>
+            <a href="{% url 'home' %}">Home</a>
+            {% if user.is_authenticated %}
+                | <a href="{% url 'historico' %}">Meu Histórico</a>
+            {% endif %}
+        </nav>
+    </header>
+
+    <main>
+        {% block content %}
+        <!-- O conteúdo das páginas que estendem este template será inserido aqui -->
+        {% endblock %}
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Lotofácil App</p>
+    </footer>
+</body>
+</html>
