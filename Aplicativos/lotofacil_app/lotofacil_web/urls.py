@@ -21,10 +21,11 @@ from lotofacil_analyzer.views import home
 
 
 def home(request):
-    return HttpResponse("<h1>Bem-vindo ao Lotofácil App!</h1>")
+    return HttpResponse("<h1>Bem-vindo ao LotoFácil App!</h1>")
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('usuarios/', include('usuarios.urls')),
-    path('', home, name='home'),  # Adiciona uma rota para a raiz
+    path('', include('lotofacil_analyzer.urls')),  # Inclui as URLs do app lotofacil_analyzer
 ]
+
