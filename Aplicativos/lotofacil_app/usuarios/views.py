@@ -18,13 +18,19 @@ def registrar_usuario(request):
 
 def login_usuario(request):
     if request.method == "POST":
-        form = AuthenticationForm(data=request.POST)
+        form = AuthenticationForm(request, data=request.POST)
+
         if form.is_valid():
             user = form.get_user()
             login(request, user)
+            messages.success(request, f"Bem-vindo, {user.username}!")
             return redirect("home")
+        else:
+            messages.error(request, "Usuário ou senha incorretos. Tente novamente.")
+
     else:
         form = AuthenticationForm()
+
     return render(request, "usuarios/login.html", {"form": form})
 
 def logout_usuario(request):
@@ -35,17 +41,3 @@ def logout_usuario(request):
 def historico_jogos(request):
     jogos = JogoGerado.objects.filter(usuario=request.user).order_by("-data_geracao")  # Pega os jogos do usuário logado
     return render(request, "usuarios/historico.html", {"jogos": jogos})
-
-def login_view(request):
-    if request.method == "POST":
-        username = request.POST["username"]
-        password = request.POST["password"]
-        user = authenticate(request, username=username, password=password)
-
-        if user is not None:
-            login(request, user)
-            return redirect("home")  # Redireciona para a página inicial
-        else:
-            messages.error(request, "Usuário ou senha incorretos.")
-
-    return render(request, "login.html")
