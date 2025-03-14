@@ -1,5 +1,6 @@
 from django.shortcuts import render
+from django.http import HttpResponse
 
 def home(request):
-    return render(request, 'home.html')  # Crie um template 'home.html' depois
+    return render(request, 'lotofacil_analyzer/home.html')
 
