@@ -3,6 +3,7 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.decorators import login_required
 from lotofacil_analyzer.models import JogoGerado  # Importe o modelo correto do seu app
+from django.contrib import messages
 
 def registrar_usuario(request):
     if request.method == "POST":
@@ -35,3 +36,16 @@ def historico_jogos(request):
     jogos = JogoGerado.objects.filter(usuario=request.user).order_by("-data_geracao")  # Pega os jogos do usuário logado
     return render(request, "usuarios/historico.html", {"jogos": jogos})
 
+def login_view(request):
+    if request.method == "POST":
+        username = request.POST["username"]
+        password = request.POST["password"]
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            login(request, user)
+            return redirect("home")  # Redireciona para a página inicial
+        else:
+            messages.error(request, "Usuário ou senha incorretos.")
+
+    return render(request, "login.html")
