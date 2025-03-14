@@ -8,12 +8,18 @@ from django.contrib import messages
 def registrar_usuario(request):
     if request.method == "POST":
         form = UserCreationForm(request.POST)
+
         if form.is_valid():
             user = form.save()
             login(request, user)
-            return redirect("home")  # Redireciona para a página inicial
+            messages.success(request, f"Bem-vindo, {user.username}! Sua conta foi criada com sucesso.")
+            return redirect("home")
+        else:
+            messages.error(request, "Erro ao criar conta. Verifique os dados informados.")
+
     else:
         form = UserCreationForm()
+
     return render(request, "usuarios/registro.html", {"form": form})
 
 def login_usuario(request):
