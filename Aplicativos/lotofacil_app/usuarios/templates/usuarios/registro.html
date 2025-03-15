@@ -54,11 +54,13 @@
                 <div class="mb-3">
                     <label class="form-label">Senha</label>
                     {{ form.password1 }}
+                    <small class="form-text text-muted">{{ form.password1.help_text }}</small>
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label">Confirme a Senha</label>
                     {{ form.password2 }}
+                    <small class="form-text text-muted">{{ form.password2.help_text }}</small>
                 </div>
 
                 <button type="submit" class="btn btn-primary w-100">Criar Conta</button>
