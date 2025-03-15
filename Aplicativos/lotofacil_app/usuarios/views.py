@@ -4,10 +4,11 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.decorators import login_required
 from lotofacil_analyzer.models import JogoGerado  # Importe o modelo correto do seu app
 from django.contrib import messages
+from .forms import RegistroForm
 
 def registrar_usuario(request):
     if request.method == "POST":
-        form = UserCreationForm(request.POST)
+        form = RegistroForm(request.POST)  # Use o formulário personalizado
 
         if form.is_valid():
             user = form.save()
@@ -16,9 +17,8 @@ def registrar_usuario(request):
             return redirect("home")
         else:
             messages.error(request, "Erro ao criar conta. Verifique os dados informados.")
-
     else:
-        form = UserCreationForm()
+        form = RegistroForm()  # Use o formulário personalizado
 
     return render(request, "usuarios/registro.html", {"form": form})
 
