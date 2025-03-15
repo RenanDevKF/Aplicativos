@@ -16,7 +16,10 @@ def registrar_usuario(request):
             messages.success(request, f"Bem-vindo, {user.username}! Sua conta foi criada com sucesso.")
             return redirect("home")
         else:
-            messages.error(request, "Erro ao criar conta. Verifique os dados informados.")
+            # Exibe erros específicos para cada campo
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{field.capitalize()}: {error}")
     else:
         form = RegistroForm()  # Use o formulário personalizado
 
