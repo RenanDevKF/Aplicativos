@@ -12,4 +12,7 @@ def criar_jogo(request):
 def gerar_jogo_rapido(request):
     return HttpResponse("Jogo rápido gerado!")
 
+def resultados(request):
+    return render(request, 'resultados.html')  # Certifique-se de que esse template existe
+
 
