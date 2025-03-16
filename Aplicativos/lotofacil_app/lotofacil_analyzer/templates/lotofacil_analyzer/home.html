@@ -1,12 +1,209 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bem-vindo ao LotoFácil App</title>
-</head>
-<body>
-    <h1>Bem-vindo ao LotoFácil App!</h1>
-    <p>Este é o template da página inicial.</p>
-</body>
-</html>
+{% extends 'lotofacil_analyzer/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="home-container">
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-content">
+            <h1>Lotofácil Analyzer</h1>
+            <p class="subtitle">Análises inteligentes para aumentar suas chances na Lotofácil</p>
+            <div class="hero-buttons">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'criar_jogo' %}" class="btn btn-primary">Criar Jogo Personalizado</a>
+                    <a href="{% url 'historico' %}" class="btn btn-secondary">Meu Histórico</a>
+                {% else %}
+                    <a href="{% url 'login' %}" class="btn btn-primary">Entrar</a>
+                    <a href="{% url 'registro' %}" class="btn btn-secondary">Cadastrar</a>
+                {% endif %}
+            </div>
+        </div>
+        <div class="hero-image">
+            <img src="{% static 'img/lotofacil-hero.png' %}" alt="Lotofácil Analyzer">
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-section">
+        <h2>Como o Lotofácil Analyzer pode te ajudar</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h3>Análise Estatística</h3>
+                <p>Algoritmos avançados para análise de padrões e tendências nos sorteios.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-random"></i>
+                </div>
+                <h3>Geração de Jogos</h3>
+                <p>Crie jogos personalizados baseados em diferentes estratégias.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-history"></i>
+                </div>
+                <h3>Histórico Completo</h3>
+                <p>Mantenha registro de todos os seus jogos e análises anteriores.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-trophy"></i>
+                </div>
+                <h3>Resultados Atualizados</h3>
+                <p>Acompanhe os resultados mais recentes da Lotofácil.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Play Section -->
+    <section class="quick-play-section">
+        <div class="quick-play-content">
+            <h2>Jogo Rápido</h2>
+            <p>Gere um jogo com nosso algoritmo padrão em segundos!</p>
+            <form action="{% url 'gerar_jogo_rapido' %}" method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="quantidade">Quantidade de jogos:</label>
+                    <select id="quantidade" name="quantidade" class="form-control">
+                        <option value="1">1 jogo</option>
+                        <option value="5">5 jogos</option>
+                        <option value="10">10 jogos</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Gerar Jogo Rápido</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Latest Results Section -->
+    <section class="latest-results-section">
+        <h2>Últimos Resultados</h2>
+        <div class="results-container">
+            {% if latest_results %}
+                {% for result in latest_results %}
+                <div class="result-card">
+                    <div class="result-header">
+                        <h3>Concurso {{ result.concurso }}</h3>
+                        <p class="result-date">{{ result.data_sorteio }}</p>
+                    </div>
+                    <div class="result-numbers">
+                        {% for numero in result.numeros_sorteados %}
+                            <span class="number-ball">{{ numero }}</span>
+                        {% endfor %}
+                    </div>
+                    <div class="result-info">
+                        <p>Prêmio Principal: R$ {{ result.premio_principal }}</p>
+                        <a href="{% url 'detalhes_concurso' result.concurso %}" class="btn btn-sm btn-outline">Ver Detalhes</a>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-results">
+                    <p>Carregando resultados recentes...</p>
+                </div>
+            {% endif %}
+        </div>
+        <div class="see-more">
+            <a href="{% url 'resultados' %}" class="btn btn-secondary">Ver Todos os Resultados</a>
+        </div>
+    </section>
+    
+    <!-- Statistics Preview Section -->
+    <section class="statistics-section">
+        <h2>Estatísticas Principais</h2>
+        <div class="statistics-grid">
+            <div class="statistic-card">
+                <h3>Números Mais Sorteados</h3>
+                <div class="hot-numbers">
+                    {% for numero, ocorrencias in numeros_frequentes %}
+                        <div class="hot-number">
+                            <span class="number-ball highlight">{{ numero }}</span>
+                            <span class="occurrences">{{ ocorrencias }}x</span>
+                        </div>
+                    {% endfor %}
+                </div>
+                <a href="{% url 'estatisticas' %}" class="btn btn-sm btn-outline">Mais Estatísticas</a>
+            </div>
+            <div class="statistic-card">
+                <h3>Números Menos Sorteados</h3>
+                <div class="cold-numbers">
+                    {% for numero, ocorrencias in numeros_menos_frequentes %}
+                        <div class="cold-number">
+                            <span class="number-ball cold">{{ numero }}</span>
+                            <span class="occurrences">{{ ocorrencias }}x</span>
+                        </div>
+                    {% endfor %}
+                </div>
+                <a href="{% url 'estatisticas' %}" class="btn btn-sm btn-outline">Mais Estatísticas</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Premium Features Section -->
+    <section class="premium-section">
+        <div class="premium-content">
+            <h2>Recursos Premium</h2>
+            <p>Desbloqueie recursos avançados e aumente suas chances!</p>
+            <ul class="premium-features">
+                <li><i class="fas fa-check"></i> Análises preditivas personalizadas</li>
+                <li><i class="fas fa-check"></i> Algoritmos de geração exclusivos</li>
+                <li><i class="fas fa-check"></i> Exportação de jogos em PDF</li>
+                <li><i class="fas fa-check"></i> Notificações de resultados</li>
+            </ul>
+            <a href="{% url 'planos' %}" class="btn btn-premium">Conheça Nossos Planos</a>
+        </div>
+        <div class="premium-image">
+            <img src="{% static 'img/premium-features.png' %}" alt="Recursos Premium">
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="testimonials-section">
+        <h2>O que dizem nossos usuários</h2>
+        <div class="testimonials-carousel">
+            <div class="testimonial-card">
+                <div class="testimonial-content">
+                    <p>"Já fiz 14 pontos várias vezes usando os jogos gerados pelo sistema. Recomendo muito!"</p>
+                </div>
+                <div class="testimonial-author">
+                    <p>Carlos M.</p>
+                </div>
+            </div>
+            <div class="testimonial-card">
+                <div class="testimonial-content">
+                    <p>"As análises estatísticas me ajudaram a entender melhor os padrões da Lotofácil. Muito obrigada!"</p>
+                </div>
+                <div class="testimonial-author">
+                    <p>Maria S.</p>
+                </div>
+            </div>
+            <div class="testimonial-card">
+                <div class="testimonial-content">
+                    <p>"Interface muito fácil de usar e os resultados são bem interessantes. Valeu a pena!"</p>
+                </div>
+                <div class="testimonial-author">
+                    <p>João P.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Newsletter Section -->
+    <section class="newsletter-section">
+        <div class="newsletter-content">
+            <h2>Fique por dentro das novidades</h2>
+            <p>Receba dicas exclusivas, análises especiais e notificações de novos recursos</p>
+            <form action="{% url 'newsletter_signup' %}" method="post" class="newsletter-form">
+                {% csrf_token %}
+                <div class="form-group">
+                    <input type="email" name="email" placeholder="Seu melhor email" required class="form-control">
+                    <button type="submit" class="btn btn-primary">Inscrever-se</button>
+                </div>
+            </form>
+        </div>
+    </section>
+</div>
+{% endblock %}
