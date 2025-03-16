@@ -15,4 +15,5 @@ def gerar_jogo_rapido(request):
 def resultados(request):
     return render(request, 'resultados.html')  # Certifique-se de que esse template existe
 
-
+def estatisticas(request):
+    return render(request, 'estatisticas.html')  # Certifique-se de que esse template existe
