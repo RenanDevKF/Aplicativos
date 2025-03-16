@@ -7,5 +7,6 @@ urlpatterns = [
     path('gerar-jogo-rapido/', views.gerar_jogo_rapido, name='gerar_jogo_rapido'),
     path('resultados/', views.resultados, name='resultados'),
     path('estatisticas/', views.estatisticas, name='estatisticas'),
+    path('planos/', views.planos, name='planos'),
 ]
 

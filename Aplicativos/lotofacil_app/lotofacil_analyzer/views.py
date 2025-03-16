@@ -17,3 +17,6 @@ def resultados(request):
 
 def estatisticas(request):
     return render(request, 'estatisticas.html')  # Certifique-se de que esse template existe
+
+def planos(request):
+    return render(request, 'planos.html')  # Certifique-se de que esse template existe
