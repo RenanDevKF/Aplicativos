@@ -20,3 +20,6 @@ def estatisticas(request):
 
 def planos(request):
     return render(request, 'planos.html')  # Certifique-se de que esse template existe
+
+def newsletter_signup(request):
+    return render(request, 'newsletter.html')  # Certifique-se de que esse template existe
