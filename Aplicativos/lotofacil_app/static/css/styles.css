@@ -48,6 +48,7 @@ nav ul li a:hover {
     font-weight: bold; /* Texto em negrito */
     text-transform: uppercase; /* Transforma o texto em maiúsculas */
     transition: background-color 0.3s ease; /* Transição suave para o hover */
+    margin-bottom: 10px;
 }
 
 .btn-premium:hover {
@@ -55,6 +56,8 @@ nav ul li a:hover {
     color: white; /* Mantém o texto branco */
     text-decoration: none; /* Remove o sublinhado no hover */
 }
+
+
 
 /* Hero Section */
 .hero-section {
@@ -110,6 +113,17 @@ nav ul li a:hover {
     border: 1px solid #ddd;
     border-radius: 10px;
     text-align: center;
+    transition: background-color 0.3s ease, transform 0.3s ease; /* Adiciona transição suave */
+}
+
+.feature-card:hover {
+    background-color: #f8f9fa; /* Muda a cor de fundo ao passar o mouse */
+    transform: translateY(-5px); /* Move o card levemente para cima */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Adiciona uma sombra suave */
+}
+
+.feature-card:hover .feature-icon {
+    color: #007bff; /* Muda a cor do ícone ao passar o mouse */
 }
 
 .feature-icon {
@@ -127,6 +141,11 @@ nav ul li a:hover {
 .quick-play-content {
     max-width: 600px;
     margin: 0 auto;
+  
+}
+
+.quick-play-section .btn-primary {
+    margin-top: 20px; /* Adiciona uma margem de 20px acima do botão */
 }
 
 /* Latest Results Section */
@@ -243,4 +262,8 @@ nav ul li a:hover {
 .newsletter-form {
     max-width: 600px;
     margin: 0 auto;
+}
+
+.newsletter-section .btn-primary {
+    margin-top: 20px; /* Adiciona uma margem de 20px acima do botão */
 }
