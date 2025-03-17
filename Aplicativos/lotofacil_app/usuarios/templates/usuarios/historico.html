@@ -1,23 +1,56 @@
 {% extends "usuarios/base.html" %}
 
 {% block content %}
-<h2>Histórico de Jogos</h2>
+<div class="container mt-4">
+    <h2 class="text-center mb-4">Histórico de Jogos</h2>
 
-{% if jogos %}
-    <table border="1">
-        <tr>
-            <th>Data</th>
-            <th>Números Gerados</th>
-        </tr>
-        {% for jogo in jogos %}
-        <tr>
-            <td>{{ jogo.data_geracao|date:"d/m/Y H:i" }}</td>
-            <td>{{ jogo.numeros }}</td>
-        </tr>
-        {% endfor %}
-    </table>
-{% else %}
-    <p>Você ainda não gerou nenhum jogo.</p>
-{% endif %}
+    {% if jogos %}
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered table-hover">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">Data</th>
+                        <th scope="col">Números Gerados</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for jogo in jogos %}
+                    <tr>
+                        <td>{{ jogo.data_geracao|date:"d/m/Y H:i" }}</td>
+                        <td>{{ jogo.numeros }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="alert alert-info text-center" role="alert">
+            Você ainda não gerou nenhum jogo.
+        </div>
+    {% endif %}
+</div>
 
+<style>
+    /* Estilo personalizado para a tabela */
+    .table {
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .table thead th {
+        background-color: #343a40; /* Cor do cabeçalho */
+        color: white;
+    }
+
+    .table tbody tr:hover {
+        background-color: #f8f9fa; /* Cor de fundo ao passar o mouse */
+    }
+
+    /* Estilo para a mensagem de nenhum jogo */
+    .alert-info {
+        background-color: #e2f0ff;
+        border-color: #b6d4fe;
+        color: #004085;
+    }
+</style>
 {% endblock %}

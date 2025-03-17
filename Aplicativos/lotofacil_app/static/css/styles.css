@@ -1,0 +1,269 @@
+/* Estilos para o Cabeçalho */
+header {
+    background-color: #007bff; /* Cor de fundo do cabeçalho */
+    padding: 10px 0; /* Espaçamento interno */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra suave */
+    
+}
+
+nav ul {
+    list-style-type: none; /* Remove os marcadores de lista */
+    margin: 0;
+    padding: 0;
+    display: flex; /* Alinha os itens horizontalmente */
+    justify-content: center; /* Centraliza os itens */
+}
+
+nav ul li {
+    margin: 0 15px; /* Espaçamento entre os itens */
+}
+
+nav ul li a {
+    color: white; /* Cor do texto */
+    text-decoration: none; /* Remove o sublinhado dos links */
+    font-weight: bold; /* Texto em negrito */
+    font-size: 1.1rem; /* Tamanho da fonte */
+    transition: color 0.3s ease; /* Transição suave para o hover */
+}
+
+nav ul li a:hover {
+    color: #ffdd57; /* Cor do texto ao passar o mouse */
+    text-decoration: underline; /* Sublinhado ao passar o mouse */
+}
+
+/* Estilos Gerais */
+.home-container {
+    font-family: 'Arial', sans-serif;
+    color: #333;
+}
+
+/* Estilos para o botão premium */
+.btn-premium {
+    background-color: #007bff; /* Cor de fundo azul */
+    color: white; /* Cor do texto */
+    padding: 3px 7px; /* Espaçamento interno */
+    border: none; /* Remove a borda */
+    border-radius: 5px; /* Bordas arredondadas */
+    font-size: 1.1rem; /* Tamanho da fonte */
+    font-weight: bold; /* Texto em negrito */
+    text-transform: uppercase; /* Transforma o texto em maiúsculas */
+    transition: background-color 0.3s ease; /* Transição suave para o hover */
+    margin-bottom: 10px;
+}
+
+.btn-premium:hover {
+    background-color: #0056b3; /* Cor de fundo ao passar o mouse */
+    color: white; /* Mantém o texto branco */
+    text-decoration: none; /* Remove o sublinhado no hover */
+}
+
+
+
+/* Hero Section */
+.hero-section {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 50px 20px;
+    background-color: #f8f9fa;
+    text-align: center; /* Centraliza o texto */
+    flex-direction: column; /* Alinha os itens verticalmente */
+}
+
+.hero-content {
+    max-width: 600px;
+}
+
+.hero-content h1 {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+}
+
+.hero-content .subtitle {
+    font-size: 1.2rem;
+    margin-bottom: 30px;
+}
+
+.hero-buttons .btn {
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+
+.hero-image img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Features Section */
+.features-section {
+    padding: 50px 20px;
+    background-color: #fff;
+    text-align: center;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-top: 30px;
+}
+
+.feature-card {
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    text-align: center;
+    transition: background-color 0.3s ease, transform 0.3s ease; /* Adiciona transição suave */
+}
+
+.feature-card:hover {
+    background-color: #f8f9fa; /* Muda a cor de fundo ao passar o mouse */
+    transform: translateY(-5px); /* Move o card levemente para cima */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Adiciona uma sombra suave */
+}
+
+.feature-card:hover .feature-icon {
+    color: #007bff; /* Muda a cor do ícone ao passar o mouse */
+}
+
+.feature-icon {
+    font-size: 2rem;
+    margin-bottom: 15px;
+}
+
+/* Quick Play Section */
+.quick-play-section {
+    padding: 50px 20px;
+    background-color: #f8f9fa;
+    text-align: center;
+}
+
+.quick-play-content {
+    max-width: 600px;
+    margin: 0 auto;
+  
+}
+
+.quick-play-section .btn-primary {
+    margin-top: 20px; /* Adiciona uma margem de 20px acima do botão */
+}
+
+/* Latest Results Section */
+.latest-results-section {
+    padding: 50px 20px;
+    background-color: #fff;
+    text-align: center;
+}
+
+.results-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-top: 30px;
+}
+
+.result-card {
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+}
+
+.result-numbers {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.number-ball {
+    display: inline-block;
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
+    border-radius: 50%;
+    background-color: #007bff;
+    color: #fff;
+}
+
+/* Statistics Section */
+.statistics-section {
+    padding: 50px 20px;
+    background-color: #f8f9fa;
+    text-align: center;
+}
+
+.statistics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-top: 30px;
+}
+
+.statistic-card {
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+}
+
+/* Premium Section */
+.premium-section {
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Centraliza o conteúdo horizontalmente */
+    padding: 50px 20px;
+    background-color: #fff;
+    text-align: center; /* Centraliza o texto */
+    flex-direction: column; /* Alinha os itens verticalmente */
+}
+
+.premium-content {
+    max-width: 600px;
+    width: 100%; /* Garante que o conteúdo ocupe a largura máxima */
+}
+
+.premium-features {
+    list-style: none;
+    padding: 0;
+    margin: 0 auto; /* Centraliza a lista */
+}
+
+.premium-features li {
+    margin-bottom: 10px;
+}
+
+/* Testimonials Section */
+.testimonials-section {
+    padding: 50px 20px;
+    background-color: #f8f9fa;
+    text-align: center;
+}
+
+.testimonials-carousel {
+    display: flex;
+    gap: 20px;
+    margin-top: 30px;
+}
+
+.testimonial-card {
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    flex: 1;
+}
+
+/* Newsletter Section */
+.newsletter-section {
+    padding: 50px 20px;
+    background-color: #fff;
+    text-align: center;
+}
+
+.newsletter-form {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.newsletter-section .btn-primary {
+    margin-top: 20px; /* Adiciona uma margem de 20px acima do botão */
+}
