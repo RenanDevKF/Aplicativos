@@ -6,7 +6,8 @@
     <!-- Hero Section -->
     <section class="hero-section">
         <div class="hero-content">
-            <h1>Lotofácil Analyzer</h1>
+            <!-- Substitua o <h1> pela imagem que estava na hero-image -->
+            <img src="{% static 'img/lotofacil-hero.png' %}" alt="Lotofácil Analyzer" class="hero-logo">
             <p class="subtitle">Análises inteligentes para aumentar suas chances na Lotofácil</p>
             <div class="hero-buttons">
                 {% if user.is_authenticated %}
@@ -18,9 +19,7 @@
                 {% endif %}
             </div>
         </div>
-        <div class="hero-image">
-            <img src="{% static 'img/lotofacil-hero.png' %}" alt="Lotofácil Analyzer">
-        </div>
+        <!-- Remova a div hero-image, pois a imagem foi movida para o hero-content -->
     </section>
 
     <!-- Features Section -->
