@@ -36,6 +36,25 @@ nav ul li a:hover {
     color: #333;
 }
 
+/* Estilos para o botão premium */
+.btn-premium {
+    background-color: #007bff; /* Cor de fundo azul */
+    color: white; /* Cor do texto */
+    padding: 5px 10px; /* Espaçamento interno */
+    border: none; /* Remove a borda */
+    border-radius: 5px; /* Bordas arredondadas */
+    font-size: 1.1rem; /* Tamanho da fonte */
+    font-weight: bold; /* Texto em negrito */
+    text-transform: uppercase; /* Transforma o texto em maiúsculas */
+    transition: background-color 0.3s ease; /* Transição suave para o hover */
+}
+
+.btn-premium:hover {
+    background-color: #0056b3; /* Cor de fundo ao passar o mouse */
+    color: white; /* Mantém o texto branco */
+    text-decoration: none; /* Remove o sublinhado no hover */
+}
+
 /* Hero Section */
 .hero-section {
     display: flex;
@@ -110,6 +129,7 @@ nav ul li a:hover {
 .latest-results-section {
     padding: 50px 20px;
     background-color: #fff;
+    text-align: center;
 }
 
 .results-container {
@@ -147,6 +167,7 @@ nav ul li a:hover {
 .statistics-section {
     padding: 50px 20px;
     background-color: #f8f9fa;
+    text-align: center;
 }
 
 .statistics-grid {
@@ -166,18 +187,22 @@ nav ul li a:hover {
 .premium-section {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center; /* Centraliza o conteúdo horizontalmente */
     padding: 50px 20px;
     background-color: #fff;
+    text-align: center; /* Centraliza o texto */
+    flex-direction: column; /* Alinha os itens verticalmente */
 }
 
 .premium-content {
     max-width: 600px;
+    width: 100%; /* Garante que o conteúdo ocupe a largura máxima */
 }
 
 .premium-features {
     list-style: none;
     padding: 0;
+    margin: 0 auto; /* Centraliza a lista */
 }
 
 .premium-features li {
@@ -188,6 +213,7 @@ nav ul li a:hover {
 .testimonials-section {
     padding: 50px 20px;
     background-color: #f8f9fa;
+    text-align: center;
 }
 
 .testimonials-carousel {
