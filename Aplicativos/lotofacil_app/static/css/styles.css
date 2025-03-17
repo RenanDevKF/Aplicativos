@@ -3,6 +3,7 @@ header {
     background-color: #007bff; /* Cor de fundo do cabeçalho */
     padding: 10px 0; /* Espaçamento interno */
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra suave */
+    
 }
 
 nav ul {
@@ -40,7 +41,7 @@ nav ul li a:hover {
 .btn-premium {
     background-color: #007bff; /* Cor de fundo azul */
     color: white; /* Cor do texto */
-    padding: 5px 10px; /* Espaçamento interno */
+    padding: 3px 7px; /* Espaçamento interno */
     border: none; /* Remove a borda */
     border-radius: 5px; /* Bordas arredondadas */
     font-size: 1.1rem; /* Tamanho da fonte */
@@ -59,9 +60,11 @@ nav ul li a:hover {
 .hero-section {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     padding: 50px 20px;
     background-color: #f8f9fa;
+    text-align: center; /* Centraliza o texto */
+    flex-direction: column; /* Alinha os itens verticalmente */
 }
 
 .hero-content {
@@ -80,10 +83,11 @@ nav ul li a:hover {
 
 .hero-buttons .btn {
     margin-right: 10px;
+    margin-bottom: 10px;
 }
 
 .hero-image img {
-    max-width: 100%;
+    max-width: 20%;
     height: auto;
 }
 
