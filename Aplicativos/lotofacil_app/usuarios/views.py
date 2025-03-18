@@ -33,9 +33,11 @@ def login_usuario(request):
             user = form.get_user()
             login(request, user)
             messages.success(request, f"Bem-vindo, {user.username}!")
+            print(f"Mensagem de boas-vindas adicionada para {user.username}")  # Debug
             return redirect("home")
         else:
             messages.error(request, "Usuário ou senha incorretos. Tente novamente.")
+            print("Erro de login: Usuário ou senha incorretos")  # Debug
 
     else:
         form = AuthenticationForm()
