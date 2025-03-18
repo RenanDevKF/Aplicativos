@@ -3,8 +3,8 @@ header {
     background-color: #007bff; /* Cor de fundo do cabeçalho */
     padding: 10px 0; /* Espaçamento interno */
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra suave */
-    
 }
+
 
 nav ul {
     list-style-type: none; /* Remove os marcadores de lista */
@@ -29,6 +29,18 @@ nav ul li a {
 nav ul li a:hover {
     color: #ffdd57; /* Cor do texto ao passar o mouse */
     text-decoration: underline; /* Sublinhado ao passar o mouse */
+}
+
+/* Estilo para a mensagem de boas-vindas */
+header nav ul li a.mensagem-boas-vindas {
+    color: white !important; /* Força a cor branca */
+    font-weight: bold !important; /* Texto em negrito */
+    font-size: 1.1rem !important; /* Tamanho da fonte igual aos links */
+    margin: 0 15px !important; /* Espaçamento igual aos links */
+    list-style: none !important; /* Remove o marcador de lista */
+    display: inline-block !important; /* Garante que o item se comporte como os links */
+    padding: 0 !important; /* Remove o padding padrão */
+    text-decoration: none !important; /* Remove o sublinhado */
 }
 
 /* Estilos Gerais */
