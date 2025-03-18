@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 
 class Concurso(models.Model):
     numero = models.IntegerField(unique=True)  # Número do concurso
@@ -8,6 +9,11 @@ class Concurso(models.Model):
 
     def __str__(self):
         return f"Concurso {self.numero} - {self.data}"
+    
+    def save(self, *args, **kwargs):
+        if len(self.numeros_sorteados) != 15:
+            raise ValidationError("O concurso deve ter exatamente 15 números sorteados.")
+        super().save(*args, **kwargs)
 
 class JogoGerado(models.Model):
     usuario = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
