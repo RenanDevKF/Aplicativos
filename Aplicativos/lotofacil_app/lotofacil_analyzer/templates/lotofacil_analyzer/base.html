@@ -21,7 +21,7 @@
                     <li class="mensagem-boas-vindas">Bem-vindo, {{ user.username }}!</li>
                 {% endif %}
     
-                <li><a href="{% url 'home' %}">Home</a></li>
+                <li><a href="{% url 'home' %}">Pagina Inicial</a></li>
                 {% if user.is_authenticated %}
                     <li><a href="{% url 'criar_jogo' %}">Criar Jogo</a></li>
                     <li><a href="{% url 'historico' %}">Meu Histórico</a></li>
