@@ -9,12 +9,18 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Arquivo CSS personalizado -->
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
 <body>
     <header>
         <nav>
             <ul>
+                <!-- Mensagem de boas-vindas na mesma linha dos links -->
+                {% if user.is_authenticated %}
+                    <li class="mensagem-boas-vindas">Bem-vindo, {{ user.username }}!</li>
+                {% endif %}
+    
                 <li><a href="{% url 'home' %}">Home</a></li>
                 {% if user.is_authenticated %}
                     <li><a href="{% url 'criar_jogo' %}">Criar Jogo</a></li>
@@ -35,5 +41,8 @@
     <footer>
         <p>&copy; 2025 Lotofácil Analyzer - Todos os direitos reservados.</p>
     </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
