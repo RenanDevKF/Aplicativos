@@ -5,8 +5,11 @@ from .models import Concurso, JogoGerado
 class ConcursoAdmin(admin.ModelAdmin):
     list_display = ('numero', 'data')
     search_fields = ('numero', 'data')
+    
 
 @admin.register(JogoGerado)
 class JogoGeradoAdmin(admin.ModelAdmin):
     list_display = ('usuario', 'data_geracao')
     search_fields = ('usuario__username', 'data_geracao')
+    list_filter = ('data_geracao', 'usuario')
+    ordering = ('-data_geracao',)  # Ordena por data de geração (mais recente primeiro)
