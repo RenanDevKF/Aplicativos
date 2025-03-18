@@ -32,7 +32,7 @@ nav ul li a:hover {
 }
 
 /* Estilo para a mensagem de boas-vindas */
-header nav ul li a.mensagem-boas-vindas {
+header nav ul li.mensagem-boas-vindas {
     color: white !important; /* Força a cor branca */
     font-weight: bold !important; /* Texto em negrito */
     font-size: 1.1rem !important; /* Tamanho da fonte igual aos links */
