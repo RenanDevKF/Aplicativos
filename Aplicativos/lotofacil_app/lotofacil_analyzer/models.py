@@ -6,6 +6,7 @@ class Concurso(models.Model):
     numero = models.IntegerField(unique=True)  # Número do concurso
     data = models.DateField()
     numeros_sorteados = models.JSONField()  # Lista de números sorteados
+    ganhadores_15_acertos = models.IntegerField(default=0)  # Ganhadores com 15 acertos
 
     def __str__(self):
         return f"Concurso {self.numero} - {self.data}"
