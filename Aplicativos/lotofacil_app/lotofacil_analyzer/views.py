@@ -1,19 +1,33 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ValidationError
+from .models import JogoGerado, Concurso
 from django.http import HttpResponse
+from bs4 import BeautifulSoup
+from django.utils import timezone
+import json
+import requests
+
 
 def home(request):
     return render(request, 'lotofacil_analyzer/home.html')
 
 from django.http import HttpResponse
-
+@login_required
 def criar_jogo(request):
+    
     return HttpResponse("Página de criação de jogo")
 
 def gerar_jogo_rapido(request):
     return HttpResponse("Jogo rápido gerado!")
 
 def resultados(request):
-    return render(request, 'resultados.html')  # Certifique-se de que esse template existe
+    # Obtém todos os concursos (ou filtra conforme necessário)
+    concursos = Concurso.objects.all().order_by('-numero')
+
+    # Passa os concursos para o template
+    return render(request, 'consultar_resultados.html', {'concursos': concursos})
+
 
 def estatisticas(request):
     return render(request, 'estatisticas.html')  # Certifique-se de que esse template existe
