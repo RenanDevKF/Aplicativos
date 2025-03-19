@@ -26,7 +26,7 @@ def resultados(request):
     concursos = Concurso.objects.all().order_by('-numero')
 
     # Passa os concursos para o template
-    return render(request, 'consultar_resultados.html', {'concursos': concursos})
+    return render(request, 'lotofacil_analyzer/resultados.html', {'concursos': concursos})
 
 
 def estatisticas(request):
