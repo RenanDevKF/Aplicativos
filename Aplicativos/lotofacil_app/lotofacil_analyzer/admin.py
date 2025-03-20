@@ -1,14 +1,14 @@
 from django.contrib import admin
-from .models import Concurso, JogoGerado
+from .models import SorteioLotofacil, ApostaGerada
 
-@admin.register(Concurso)
-class ConcursoAdmin(admin.ModelAdmin):
-    list_display = ('numero', 'data')
-    search_fields = ('numero', 'data')
+@admin.register(SorteioLotofacil)
+class SorteioLotofacilAdmin(admin.ModelAdmin):
+    list_display = ('numeros', 'data')
+    search_fields = ('numeros', 'data')
     
 
-@admin.register(JogoGerado)
-class JogoGeradoAdmin(admin.ModelAdmin):
+@admin.register(ApostaGerada)
+class ApostaGeradaAdmin(admin.ModelAdmin):
     list_display = ('usuario', 'data_geracao')
     search_fields = ('usuario__username', 'data_geracao')
     list_filter = ('data_geracao', 'usuario')
