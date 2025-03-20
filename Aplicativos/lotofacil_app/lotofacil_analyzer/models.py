@@ -29,6 +29,37 @@ class SorteioLotofacil(models.Model):
         ordering = ['-concurso']
         verbose_name = 'Sorteio Lotofácil'
         verbose_name_plural = 'Sorteios Lotofácil'
+        
+        
+from django.db import models
+import json
+
+class AnaliseEstatistica(models.Model):
+    """Armazena os resultados das análises estatísticas."""
+    TIPO_ANALISE_CHOICES = [
+        ('frequencia', 'Frequência de Números'),
+        ('atraso', 'Atraso de Números'),
+        ('combinacoes', 'Combinações Mais Comuns'),
+        ('distribuicao', 'Distribuição de Números'),
+        ('outro', 'Outro'),
+    ]
+
+    tipo = models.CharField(max_length=50, choices=TIPO_ANALISE_CHOICES)  # Tipo de análise
+    data_analise = models.DateTimeField(auto_now_add=True)  # Data da análise
+    parametros = models.JSONField(null=True, blank=True)  # Parâmetros usados na análise
+    resultados = models.JSONField()  # Resultados da análise
+
+    def get_resultados_formatados(self):
+        """Retorna os resultados formatados para exibição."""
+        return json.dumps(self.resultados, indent=4)
+
+    def __str__(self):
+        return f"Análise de {self.get_tipo_display()} - {self.data_analise}"
+
+    class Meta:
+        ordering = ['-data_analise']
+        verbose_name = 'Análise Estatística'
+        verbose_name_plural = 'Análises Estatísticas'
 
 class ApostaGerada(models.Model):
     """Armazena apostas geradas para os usuários."""
