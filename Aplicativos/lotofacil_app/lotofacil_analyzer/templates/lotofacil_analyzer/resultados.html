@@ -1,2 +1,28 @@
-<h1>Resultados dos Jogos</h1>
-<p>Aqui estarão os últimos resultados.</p>
+{% extends 'lotofacil_analyzer/base.html' %}
+
+{% block content %}
+<h2>Resultados dos Concursos</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Concurso</th>
+            <th>Data</th>
+            <th>Números Sorteados</th>
+            <th>Ganhadores 15 Acertos</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for concurso in concursos %}
+        <tr>
+            <td>{{ concurso.numero }}</td>
+            <td>{{ concurso.data }}</td>
+            <td>{{ concurso.numeros_sorteados|join:", " }}</td>
+            <td>{{ concurso.ganhadores_15_acertos }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<a href="{% url 'home' %}" class="btn btn-secondary">Voltar</a>
+{% endblock %}
