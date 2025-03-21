@@ -81,3 +81,35 @@
                 </div>
             </div>
         </div>
+
+        <!-- Aba de Atraso -->
+        <div class="tab-pane fade" id="atraso" role="tabpanel">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">Números com Maior Atraso</div>
+                        <div class="card-body">
+                            <div class="chart-container">
+                                <canvas id="chartAtrasoMaior"></canvas>
+                            </div>
+                            <table class="table table-sm mt-3">
+                                <thead>
+                                    <tr>
+                                        <th>Número</th>
+                                        <th>Atraso Atual</th>
+                                        <th>Último Sorteio</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for num, atraso in atraso.ranking_atrasos|slice:":5" %}
+                                    <tr>
+                                        <td>{{ num }}</td>
+                                        <td>{{ atraso }}</td>
+                                        <td>{{ atraso.estatisticas|get_item:num|get_item:"ultimo_sorteio" }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
