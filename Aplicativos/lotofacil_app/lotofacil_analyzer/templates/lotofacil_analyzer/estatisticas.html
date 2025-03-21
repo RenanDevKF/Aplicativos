@@ -147,3 +147,28 @@
         </div>
     </div>
 </div>
+
+<script>
+    // Código JavaScript para renderizar os gráficos utilizando Chart.js
+    document.addEventListener('DOMContentLoaded', function() {
+        // Frequência - Mais Frequentes
+        var ctxFreqMais = document.getElementById('chartFrequenciaMais').getContext('2d');
+        var chartFreqMais = new Chart(ctxFreqMais, {
+            type: 'bar',
+            data: {
+                labels: [{% for num, _ in frequencia.mais_frequentes %}"{{ num }}",{% endfor %}],
+                datasets: [{
+                    label: 'Frequência',
+                    data: [{% for _, freq in frequencia.mais_frequentes %}{{ freq }},{% endfor %}],
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)'
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
