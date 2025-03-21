@@ -172,3 +172,25 @@
                 }
             }
         });
+
+        // Frequência - Menos Frequentes
+        var ctxFreqMenos = document.getElementById('chartFrequenciaMenos').getContext('2d');
+        var chartFreqMenos = new Chart(ctxFreqMenos, {
+            type: 'bar',
+            data: {
+                labels: [{% for num, _ in frequencia.menos_frequentes %}"{{ num }}",{% endfor %}],
+                datasets: [{
+                    label: 'Frequência',
+                    data: [{% for _, freq in frequencia.menos_frequentes %}{{ freq }},{% endfor %}],
+                    backgroundColor: 'rgba(255, 99, 132, 0.6)'
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
