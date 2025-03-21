@@ -1,3 +1,4 @@
+<!-- lotofacil_analyzer/templates/lotofacil_analyzer/estatisticas.html -->
 {% extends 'lotofacil_analyzer/base.html' %}
 
 {% block content %}
@@ -17,7 +18,7 @@
         </li>
         <!-- Adicione mais abas para outras análises -->
     </ul>
-
+    
     <div class="tab-content mt-3" id="estatisticasContent">
         <!-- Aba de Frequência -->
         <div class="tab-pane fade show active" id="frequencia" role="tabpanel">
@@ -50,7 +51,7 @@
                         </div>
                     </div>
                 </div>
-
+                
                 <div class="col-md-6">
                     <div class="card">
                         <div class="card-header">Números Menos Frequentes</div>
@@ -81,7 +82,7 @@
                 </div>
             </div>
         </div>
-
+        
         <!-- Aba de Atraso -->
         <div class="tab-pane fade" id="atraso" role="tabpanel">
             <div class="row">
@@ -113,7 +114,7 @@
                         </div>
                     </div>
                 </div>
-
+                
                 <div class="col-md-6">
                     <div class="card">
                         <div class="card-header">Estatísticas de Atraso</div>
@@ -149,48 +150,73 @@
 </div>
 
 <script>
-    // Código JavaScript para renderizar os gráficos utilizando Chart.js
-    document.addEventListener('DOMContentLoaded', function() {
-        // Frequência - Mais Frequentes
-        var ctxFreqMais = document.getElementById('chartFrequenciaMais').getContext('2d');
-        var chartFreqMais = new Chart(ctxFreqMais, {
-            type: 'bar',
-            data: {
-                labels: [{% for num, _ in frequencia.mais_frequentes %}"{{ num }}",{% endfor %}],
-                datasets: [{
-                    label: 'Frequência',
-                    data: [{% for _, freq in frequencia.mais_frequentes %}{{ freq }},{% endfor %}],
-                    backgroundColor: 'rgba(54, 162, 235, 0.6)'
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
+// Código JavaScript para renderizar os gráficos utilizando Chart.js
+document.addEventListener('DOMContentLoaded', function() {
+    // Frequência - Mais Frequentes
+    var ctxFreqMais = document.getElementById('chartFrequenciaMais').getContext('2d');
+    var chartFreqMais = new Chart(ctxFreqMais, {
+        type: 'bar',
+        data: {
+            labels: [{% for num, _ in frequencia.mais_frequentes %}"{{ num }}",{% endfor %}],
+            datasets: [{
+                label: 'Frequência',
+                data: [{% for _, freq in frequencia.mais_frequentes %}{{ freq }},{% endfor %}],
+                backgroundColor: 'rgba(54, 162, 235, 0.6)'
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
                 }
             }
-        });
-
-        // Frequência - Menos Frequentes
-        var ctxFreqMenos = document.getElementById('chartFrequenciaMenos').getContext('2d');
-        var chartFreqMenos = new Chart(ctxFreqMenos, {
-            type: 'bar',
-            data: {
-                labels: [{% for num, _ in frequencia.menos_frequentes %}"{{ num }}",{% endfor %}],
-                datasets: [{
-                    label: 'Frequência',
-                    data: [{% for _, freq in frequencia.menos_frequentes %}{{ freq }},{% endfor %}],
-                    backgroundColor: 'rgba(255, 99, 132, 0.6)'
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
+        }
+    });
+    
+    // Frequência - Menos Frequentes
+    var ctxFreqMenos = document.getElementById('chartFrequenciaMenos').getContext('2d');
+    var chartFreqMenos = new Chart(ctxFreqMenos, {
+        type: 'bar',
+        data: {
+            labels: [{% for num, _ in frequencia.menos_frequentes %}"{{ num }}",{% endfor %}],
+            datasets: [{
+                label: 'Frequência',
+                data: [{% for _, freq in frequencia.menos_frequentes %}{{ freq }},{% endfor %}],
+                backgroundColor: 'rgba(255, 99, 132, 0.6)'
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
                 }
             }
-        });
+        }
+    });
+    
+    // Atraso - Maior Atraso
+    var ctxAtrasoMaior = document.getElementById('chartAtrasoMaior').getContext('2d');
+    var chartAtrasoMaior = new Chart(ctxAtrasoMaior, {
+        type: 'bar',
+        data: {
+            labels: [{% for num, _ in atraso.ranking_atrasos|slice:":5" %}"{{ num }}",{% endfor %}],
+            datasets: [{
+                label: 'Atraso (concursos)',
+                data: [{% for _, atr in atraso.ranking_atrasos|slice:":5" %}{{ atr }},{% endfor %}],
+                backgroundColor: 'rgba(255, 159, 64, 0.6)'
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}
