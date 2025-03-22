@@ -1,0 +1,115 @@
+/* lotofacil_analyzer/static/lotofacil_analyzer/css/estatisticas.css */
+
+/* Container Principal */
+.statistics-container {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Título */
+.statistics-container h1 {
+    text-align: center;
+    color: #007bff;
+    margin-bottom: 20px;
+}
+
+/* Abas de Navegação */
+.statistics-tabs {
+    display: flex;
+    justify-content: center;
+    list-style: none;
+    padding: 0;
+    margin-bottom: 20px;
+}
+
+.tab-item {
+    margin: 0 10px;
+}
+
+.tab-link {
+    text-decoration: none;
+    color: #007bff;
+    font-weight: bold;
+    padding: 10px 20px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.tab-link:hover {
+    background-color: #007bff;
+    color: white;
+}
+
+.tab-item.active .tab-link {
+    background-color: #007bff;
+    color: white;
+}
+
+/* Conteúdo das Abas */
+.tab-content {
+    margin-top: 20px;
+}
+
+.tab-pane {
+    display: none;
+}
+
+.tab-pane.active {
+    display: block;
+}
+
+/* Grid de Estatísticas */
+.statistics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+/* Cards de Estatísticas */
+.statistic-card {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.statistic-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.statistic-card h2 {
+    font-size: 1.5rem;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+/* Gráficos */
+.chart-container {
+    margin-bottom: 20px;
+}
+
+/* Tabelas */
+.statistics-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+.statistics-table th, .statistics-table td {
+    padding: 10px;
+    text-align: center;
+    border: 1px solid #ddd;
+}
+
+.statistics-table th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+}
+
+.statistics-table tr:hover {
+    background-color: #f1f1f1;
+}
