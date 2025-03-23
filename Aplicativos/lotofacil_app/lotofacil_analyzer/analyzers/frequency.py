@@ -18,6 +18,8 @@ class AnalisadorFrequencia(AnalisadorBase):
         
         # Calcula percentuais
         total_sorteios = len(self.df)
+        if total_sorteios == 0:
+            return {"erro": "Nenhum sorteio encontrado. Verifique os dados fornecidos."}
         percentuais = {num: (freq / total_sorteios) * 100 
                       for num, freq in frequencias.items()}
         
@@ -26,6 +28,7 @@ class AnalisadorFrequencia(AnalisadorBase):
         menos_frequentes = sorted(frequencias.items(), key=lambda x: x[1])
         
         # Armazena os resultados
+        valores_frequencias = list(frequencias.values())
         self.resultados = {
             'contagem': frequencias,
             'percentuais': percentuais,
