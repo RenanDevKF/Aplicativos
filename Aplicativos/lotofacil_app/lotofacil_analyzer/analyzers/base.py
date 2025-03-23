@@ -6,32 +6,40 @@ from ..models import SorteioLotofacil, AnaliseEstatistica
 class AnalisadorBase(ABC):
     """Classe base para todos os analisadores de Lotofácil"""
     
-    def __init__(self, sorteios=None, ultimos_n=None):
+    def __init__(self, df=None, ultimos_n=None):
         """
-        Inicializa o analisador
+        Inicializa o analisador.
         
         Args:
-            sorteios (list): Lista de objetos SorteioLotofacil ou None para buscar todos
-            ultimos_n (int): Analisar apenas os últimos N sorteios ou None para todos
+            df (pd.DataFrame, optional): DataFrame com os dados dos sorteios.
+            ultimos_n (int, optional): Analisar apenas os últimos N sorteios.
         """
         self.nome = self.__class__.__name__
         
-        # Se não recebeu sorteios, busca do banco de dados
-        if sorteios is None:
+        if df is None:
+            # Se nenhum DataFrame for fornecido, busca os dados do banco de dados
             query = SorteioLotofacil.objects.all().order_by('-concurso')
             if ultimos_n:
                 query = query[:ultimos_n]
-            self.sorteios = list(query)
+            self.df = self._criar_dataframe(query)
         else:
-            self.sorteios = sorteios
+            # Usa o DataFrame fornecido
+            self.df = df
         
         self.resultados = {}
-        self.df = self._criar_dataframe()
     
-    def _criar_dataframe(self):
-        """Converte os sorteios em um DataFrame para facilitar a análise"""
+    def _criar_dataframe(self, sorteios):
+        """
+        Converte uma lista de objetos SorteioLotofacil em um DataFrame.
+        
+        Args:
+            sorteios (list): Lista de objetos SorteioLotofacil.
+        
+        Returns:
+            pd.DataFrame: DataFrame com os dados dos sorteios.
+        """
         dados = []
-        for sorteio in self.sorteios:
+        for sorteio in sorteios:
             row = {
                 'concurso': sorteio.concurso,
                 'data': sorteio.data,
