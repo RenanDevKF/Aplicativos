@@ -1,52 +1,66 @@
 # lotofacil_analyzer/analyzers/base.py
 from abc import ABC, abstractmethod
 import pandas as pd
-from ..models import SorteioLotofacil, AnaliseEstatistica
+from ..models import AnaliseEstatistica  # Remova SorteioLotofacil se não for usado
 
 class AnalisadorBase(ABC):
     """Classe base para todos os analisadores de Lotofácil"""
     
-    def __init__(self, df=None, ultimos_n=None):
+    def __init__(self, df=None, arquivo_excel=None, ultimos_n=None):
         """
         Inicializa o analisador.
         
         Args:
             df (pd.DataFrame, optional): DataFrame com os dados dos sorteios.
+            arquivo_excel (str, optional): Caminho para o arquivo Excel com os dados.
             ultimos_n (int, optional): Analisar apenas os últimos N sorteios.
         """
         self.nome = self.__class__.__name__
         
         if df is None:
-            # Se nenhum DataFrame for fornecido, busca os dados do banco de dados
-            query = SorteioLotofacil.objects.all().order_by('-concurso')
-            if ultimos_n:
-                query = query[:ultimos_n]
-            self.df = self._criar_dataframe(query)
+            if arquivo_excel:
+                # Carrega os dados do arquivo Excel
+                self.df = self._carregar_excel(arquivo_excel)
+            else:
+                raise ValueError("Nenhum DataFrame ou arquivo Excel fornecido.")
         else:
             # Usa o DataFrame fornecido
             self.df = df
         
+        # Filtra os últimos N sorteios, se necessário
+        if ultimos_n:
+            self.df = self.df.head(ultimos_n)
+        
         self.resultados = {}
-    
-    def _criar_dataframe(self, sorteios):
+        
+        # Garantir que a coluna 'numeros' exista
+        if 'numeros' not in self.df.columns:
+            numeros_colunas = [f'Bola{i}' for i in range(1, 16)]
+            self.df['numeros'] = self.df[numeros_colunas].values.tolist()
+        
+    def _carregar_excel(self, arquivo_excel):
         """
-        Converte uma lista de objetos SorteioLotofacil em um DataFrame.
+        Carrega os dados do arquivo Excel e prepara o DataFrame.
         
         Args:
-            sorteios (list): Lista de objetos SorteioLotofacil.
+            arquivo_excel (str): Caminho para o arquivo Excel.
         
         Returns:
             pd.DataFrame: DataFrame com os dados dos sorteios.
         """
-        dados = []
-        for sorteio in sorteios:
-            row = {
-                'concurso': sorteio.concurso,
-                'data': sorteio.data,
-                'numeros': sorteio.get_numeros_list()
-            }
-            dados.append(row)
-        return pd.DataFrame(dados)
+        # Carrega o arquivo Excel
+        df = pd.read_excel(arquivo_excel)
+        
+        # Verifica se as colunas necessárias existem
+        colunas_necessarias = ['Concurso', 'Data Sorteio'] + [f'Bola{i}' for i in range(1, 16)]
+        for coluna in colunas_necessarias:
+            if coluna not in df.columns:
+                raise ValueError(f"Coluna '{coluna}' não encontrada no arquivo Excel.")
+        
+        # Converte as colunas de números em uma lista na coluna 'numeros'
+        df['numeros'] = df[[f'Bola{i}' for i in range(1, 16)]].values.tolist()
+        
+        return df
     
     @abstractmethod
     def analisar(self):
