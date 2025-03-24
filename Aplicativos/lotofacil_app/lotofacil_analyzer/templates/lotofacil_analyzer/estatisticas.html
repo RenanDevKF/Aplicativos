@@ -1,2 +1,239 @@
-<h1>Estatísticas do Jogo</h1>
-<p>Aqui serão exibidas as estatísticas das partidas anteriores.</p>
+<!-- lotofacil_analyzer/templates/lotofacil_analyzer/estatisticas.html -->
+{% extends 'lotofacil_analyzer/base.html' %}
+
+{% load static %}
+{% load custom_filters %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/estatisticas.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="statistics-container">
+    <h1>Estatísticas da Lotofácil</h1>
+    
+    <!-- Abas de Navegação -->
+    <ul class="statistics-tabs">
+        <li class="tab-item active">
+            <a href="#frequencia" class="tab-link">Frequência</a>
+        </li>
+        <li class="tab-item">
+            <a href="#atraso" class="tab-link">Atraso</a>
+        </li>
+        <!-- Adicione mais abas aqui, se necessário -->
+    </ul>
+    
+
+    <!-- Conteúdo das Abas -->
+    <div class="tab-content">
+        <!-- Aba de Frequência -->
+        <div id="frequencia" class="tab-pane active">
+            <div class="statistics-grid">
+                <!-- Card: Números Mais Frequentes -->
+                <div class="statistic-card">
+                    <h2>Números Mais Frequentes</h2>
+                    <div class="chart-container">
+                        <canvas id="chartFrequenciaMais"></canvas>
+                    </div>
+                    <table class="statistics-table">
+                        <thead>
+                            <tr>
+                                <th>Número</th>
+                                <th>Frequência</th>
+                                <th>Percentual</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for num, freq in frequencia.mais_frequentes %}
+                            <tr>
+                                <td>{{ num }}</td>
+                                <td>{{ freq }}</td>
+                                <td>{{ frequencia.percentuais|get_item:num|floatformat:2 }}%</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Card: Números Menos Frequentes -->
+                <div class="statistic-card">
+                    <h2>Números Menos Frequentes</h2>
+                    <div class="chart-container">
+                        <canvas id="chartFrequenciaMenos"></canvas>
+                    </div>
+                    <table class="statistics-table">
+                        <thead>
+                            <tr>
+                                <th>Número</th>
+                                <th>Frequência</th>
+                                <th>Percentual</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for num, freq in frequencia.menos_frequentes %}
+                            <tr>
+                                <td>{{ num }}</td>
+                                <td>{{ freq }}</td>
+                                <td>{{ frequencia.percentuais|get_item:num|floatformat:2 }}%</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Aba de Atraso -->
+        <div id="atraso" class="tab-pane">
+            <div class="statistics-grid">
+                <!-- Card: Números com Maior Atraso -->
+                <div class="statistic-card">
+                    <h2>Números com Maior Atraso</h2>
+                    <div class="chart-container">
+                        <canvas id="chartAtrasoMaior"></canvas>
+                    </div>
+                    <table class="statistics-table">
+                        <thead>
+                            <tr>
+                                <th>Número</th>
+                                <th>Atraso Atual</th>
+                                <th>Último Sorteio</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for num, atraso in atraso.ranking_atrasos|slice:":5" %}
+                            <tr>
+                                <td>{{ num }}</td>
+                                <td>{{ atraso }}</td>
+                                <td>{{ atraso.estatisticas|get_item:num|get_item:"ultimo_sorteio" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Card: Estatísticas de Atraso -->
+                <div class="statistic-card">
+                    <h2>Estatísticas de Atraso</h2>
+                    <div class="table-container">
+                        <table class="statistics-table">
+                            <thead>
+                                <tr>
+                                    <th>Número</th>
+                                    <th>Atual</th>
+                                    <th>Máximo</th>
+                                    <th>Média</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for num in 25|range_filter %}
+                                <tr>
+                                    <td>{{ num }}</td>
+                                    <td>{{ atraso.estatisticas|get_item:num|get_item:"atual" }}</td>
+                                    <td>{{ atraso.estatisticas|get_item:num|get_item:"maximo" }}</td>
+                                    <td>{{ atraso.estatisticas|get_item:num|get_item:"media"|floatformat:1 }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Lógica para alternar entre as abas
+    const tabLinks = document.querySelectorAll('.tab-link');
+    const tabPanes = document.querySelectorAll('.tab-pane');
+
+    tabLinks.forEach(function(tabLink) {
+        tabLink.addEventListener('click', function(event) {
+            event.preventDefault(); // Impede o comportamento padrão do link
+
+            // Remove a classe 'active' de todas as abas e painéis
+            tabLinks.forEach(function(link) {
+                link.parentElement.classList.remove('active');
+            });
+            tabPanes.forEach(function(pane) {
+                pane.classList.remove('active');
+            });
+
+            // Adiciona a classe 'active' à aba e ao painel clicado
+            const targetTab = this.getAttribute('href'); // Pega o valor do href (ex: #frequencia)
+            document.querySelector(targetTab).classList.add('active'); // Ativa o painel correspondente
+            this.parentElement.classList.add('active'); // Ativa a aba clicada
+        });
+    });
+
+    // Código JavaScript para renderizar os gráficos utilizando Chart.js
+    // Frequência - Mais Frequentes
+    var ctxFreqMais = document.getElementById('chartFrequenciaMais').getContext('2d');
+    var chartFreqMais = new Chart(ctxFreqMais, {
+        type: 'bar',
+        data: {
+            labels: [{% for num, _ in frequencia.mais_frequentes %}"{{ num }}",{% endfor %}],
+            datasets: [{
+                label: 'Frequência',
+                data: [{% for _, freq in frequencia.mais_frequentes %}{{ freq }},{% endfor %}],
+                backgroundColor: 'rgba(54, 162, 235, 0.6)'
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+    
+    // Frequência - Menos Frequentes
+    var ctxFreqMenos = document.getElementById('chartFrequenciaMenos').getContext('2d');
+    var chartFreqMenos = new Chart(ctxFreqMenos, {
+        type: 'bar',
+        data: {
+            labels: [{% for num, _ in frequencia.menos_frequentes %}"{{ num }}",{% endfor %}],
+            datasets: [{
+                label: 'Frequência',
+                data: [{% for _, freq in frequencia.menos_frequentes %}{{ freq }},{% endfor %}],
+                backgroundColor: 'rgba(255, 99, 132, 0.6)'
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+    
+    // Atraso - Maior Atraso
+    var ctxAtrasoMaior = document.getElementById('chartAtrasoMaior').getContext('2d');
+    var chartAtrasoMaior = new Chart(ctxAtrasoMaior, {
+        type: 'bar',
+        data: {
+            labels: [{% for num, _ in atraso.ranking_atrasos|slice:":5" %}"{{ num }}",{% endfor %}],
+            datasets: [{
+                label: 'Atraso (concursos)',
+                data: [{% for _, atr in atraso.ranking_atrasos|slice:":5" %}{{ atr }},{% endfor %}],
+                backgroundColor: 'rgba(255, 159, 64, 0.6)'
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}
