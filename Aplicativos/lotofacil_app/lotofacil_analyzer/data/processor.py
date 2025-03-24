@@ -9,92 +9,72 @@ from typing import List, Dict, Tuple, Any
 
 class LotofacilDataImporter:
     """
-    Classe responsável por importar e processar os dados da Lotofácil a partir de arquivos XLSX.
+    Classe responsável por importar e processar os dados da Lotofácil a partir de arquivos CSV.
     """
     
+    print("Módulo processor.py sendo carregado...")  # Adicione esta linha no início do arquivo
+
+class LotofacilDataImporter:
     def __init__(self, file_path=None):
-        """
-        Inicializa o importador de dados.
-        
-        Args:
-            file_path (str, optional): Caminho para o arquivo XLSX. Se None, usará o arquivo padrão.
-        """
+        print(f"Inicializando LotofacilDataImporter com file_path: {file_path}")  # Adicione esta linha
         self.file_path = file_path
         if not file_path:
-            # Usar caminho padrão dentro da pasta data
             data_dir = Path(settings.BASE_DIR) / 'lotofacil_analyzer' / 'data' / 'files'
             os.makedirs(data_dir, exist_ok=True)
-            self.file_path = data_dir / 'base_dados.xlsx'
+            self.file_path = data_dir / 'base_dados.csv'
         
         self.resultados = None
-        
     
-    def importar_xlsx(self) -> pd.DataFrame:
-        """
-        Importa os dados do arquivo XLSX.
-        
-        Returns:
-            DataFrame: DataFrame pandas com os resultados da Lotofácil
-        """
+    def importar_csv(self) -> pd.DataFrame:
+        print("Método importar_csv sendo chamado...")  # Adicione esta linha
         try:
-            df = pd.read_excel(self.file_path)
-            # Renomear colunas para um formato padrão, se necessário
-            self._normalizar_colunas(df)
+            # Verificar se o arquivo existe
+            print(f"Tentando ler o arquivo: {self.file_path}")
+            if not os.path.exists(self.file_path):
+                raise FileNotFoundError(f"Arquivo não encontrado: {self.file_path}")
+            
+            # Ler o CSV 
+            df = pd.read_csv(self.file_path)
+            
+            # Criar coluna de números
+            bolas_colunas = [f'Bola{i}' for i in range(1, 16)]
+            df['numeros'] = df[bolas_colunas].apply(
+                lambda row: [int(row[col]) for col in bolas_colunas], 
+                axis=1
+            )
+            
             self.resultados = df
             return df
         except Exception as e:
-            raise Exception(f"Erro ao importar o arquivo XLSX: {str(e)}")
-    
-    def _normalizar_colunas(self, df: pd.DataFrame) -> None:
-        """
-        Normaliza os nomes das colunas do DataFrame para um formato padrão.
+            print(f"Erro detalhado: {e}")  # Adicione esta linha
+            raise Exception(f"Erro ao importar o arquivo CSV: {str(e)}")
         
-        Args:
-            df (DataFrame): DataFrame a ser normalizado
-        """
-        # Mapeamento de possíveis nomes de colunas para nomes padronizados
-        mapeamento_colunas = {
-            'concurso': 'concurso',
-            'Concurso': 'concurso',
-            'CONCURSO': 'concurso',
-            'numero_concurso': 'concurso',
+        def _normalizar_colunas(self, df: pd.DataFrame) -> pd.DataFrame:
+            """
+            Normaliza os nomes das colunas do DataFrame para um formato padrão.
             
-            'data': 'data',
-            'Data': 'data',
-            'DATA': 'data',
-            'data_sorteio': 'data',
+            Args:
+                df (DataFrame): DataFrame a ser normalizado
             
-            # Mapeamento para bolas sorteadas
-            'bola_1': 'bola_1',
-            'Bola 1': 'bola_1',
-            '1ª Dezena': 'bola_1',
-            # ... adicione mais mapeamentos conforme necessário
-        }
-        
-        # Identificar padrão de colunas do arquivo
-        # Se as colunas forem numeradas de 1 a 15 sem prefixo
-        numeros_colunas = [str(i) for i in range(1, 16)]
-        if all(col in df.columns for col in numeros_colunas):
-            for i in range(1, 16):
-                df.rename(columns={str(i): f'bola_{i}'}, inplace=True)
-        
-        # Se as colunas forem nomeadas com bola_X ou similar
-        colunas_renomeadas = {}
-        for col in df.columns:
-            col_lower = col.lower()
-            # Verificar mapeamentos conhecidos
-            if col in mapeamento_colunas:
-                colunas_renomeadas[col] = mapeamento_colunas[col]
-            # Detectar padrões de colunas de bolas
-            elif 'bola' in col_lower or 'dezena' in col_lower:
-                for i in range(1, 16):
-                    if str(i) in col or f'_{i}' in col or f' {i}' in col:
-                        colunas_renomeadas[col] = f'bola_{i}'
-                        break
-        
-        # Aplicar renomeações detectadas
-        if colunas_renomeadas:
-            df.rename(columns=colunas_renomeadas, inplace=True)
+            Returns:
+                DataFrame: DataFrame com colunas normalizadas
+            """
+            # Renomear colunas para garantir um padrão consistente
+            colunas_mapeadas = {
+                col: col.lower().replace(' ', '_') for col in df.columns
+            }
+            df = df.rename(columns=colunas_mapeadas)
+            
+            # Criar coluna 'numeros'
+            bolas_colunas = [f'bola{i}' for i in range(1, 16)]
+            
+            # Converter bolas para lista de inteiros
+            df['numeros'] = df[bolas_colunas].apply(
+                lambda row: [int(row[col]) for col in bolas_colunas], 
+                axis=1
+            )
+            
+            return df
     
     def processar_dados(self) -> Dict[str, Any]:
         """
@@ -104,7 +84,7 @@ class LotofacilDataImporter:
             Dict: Dicionário contendo diferentes representações dos dados
         """
         if self.resultados is None:
-            self.importar_xlsx()
+            self.importar_csv()
         
         dados_processados = {
             'df': self.resultados,
