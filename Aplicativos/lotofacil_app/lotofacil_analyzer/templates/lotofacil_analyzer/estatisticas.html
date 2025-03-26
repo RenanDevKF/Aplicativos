@@ -17,6 +17,7 @@
         <h3>Dados Recebidos (Debug)</h3>
         <pre>Frequência: {{ frequencia|pprint }}</pre>
         <pre>Atraso: {{ atraso|pprint }}</pre>
+        <pre>Combinações: {{ combinacoes|pprint }}</pre>
     </div>
     {% endif %}
     
@@ -27,6 +28,9 @@
         </li>
         <li class="tab-item">
             <a href="#atraso" class="tab-link">Atraso</a>
+        </li>
+        <li class="tab-item">
+            <a href="#combinacoes" class="tab-link">Combinações</a>
         </li>
     </ul>
 
@@ -180,6 +184,75 @@
                 </div>
             </div>
         </div>
+        
+        <!-- Nova Aba de Combinações -->
+        <div id="combinacoes" class="tab-pane">
+            <div class="statistics-grid">
+                <!-- Card: Combinações de 2 Números -->
+                <div class="statistic-card">
+                    <h2>Top 10 Pares de Números</h2>
+                    <div class="chart-container">
+                        <canvas id="chartCombinacoes2"></canvas>
+                    </div>
+                    <table class="statistics-table">
+                        <thead>
+                            <tr>
+                                <th>Combinação</th>
+                                <th>Frequência</th>
+                                <th>Probabilidade</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if combinacoes.probabilidades.combinacoes_2 %}
+                                {% for item in combinacoes.probabilidades.combinacoes_2 %}
+                                <tr>
+                                    <td>{{ item.combinacao|join:", " }}</td>
+                                    <td>{{ item.frequencia }}</td>
+                                    <td>{{ item.probabilidade }}%</td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="3">Dados de combinações não disponíveis</td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Card: Combinações de 3 Números -->
+                <div class="statistic-card">
+                    <h2>Top 10 Trios de Números</h2>
+                    <div class="chart-container">
+                        <canvas id="chartCombinacoes3"></canvas>
+                    </div>
+                    <table class="statistics-table">
+                        <thead>
+                            <tr>
+                                <th>Combinação</th>
+                                <th>Frequência</th>
+                                <th>Probabilidade</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if combinacoes.probabilidades.combinacoes_3 %}
+                                {% for item in combinacoes.probabilidades.combinacoes_3 %}
+                                <tr>
+                                    <td>{{ item.combinacao|join:", " }}</td>
+                                    <td>{{ item.frequencia }}</td>
+                                    <td>{{ item.probabilidade }}%</td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="3">Dados de combinações não disponíveis</td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -245,6 +318,64 @@ document.addEventListener('DOMContentLoaded', function() {
             }]
         },
         options: { responsive: true, scales: { y: { beginAtZero: true } } }
+    });
+    {% endif %}
+
+    // Novo gráfico para Combinações de 2 Números
+    {% if combinacoes.probabilidades.combinacoes_2 %}
+    new Chart(document.getElementById('chartCombinacoes2').getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: [{% for item in combinacoes.probabilidades.combinacoes_2 %}"{{ item.combinacao|join:', ' }}",{% endfor %}],
+            datasets: [{
+                label: 'Frequência de Pares',
+                data: [{% for item in combinacoes.probabilidades.combinacoes_2 %}{{ item.frequencia }},{% endfor %}],
+                backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                probabilidades: [{% for item in combinacoes.probabilidades.combinacoes_2 %}{{ item.probabilidade }},{% endfor %}]
+            }]
+        },
+        options: { 
+            responsive: true, 
+            scales: { y: { beginAtZero: true } },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `Frequência: ${context.parsed.y}, Probabilidade: ${context.dataset.probabilidades[context.dataIndex]}%`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+    {% endif %}
+
+    // Novo gráfico para Combinações de 3 Números
+    {% if combinacoes.probabilidades.combinacoes_3 %}
+    new Chart(document.getElementById('chartCombinacoes3').getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: [{% for item in combinacoes.probabilidades.combinacoes_3 %}"{{ item.combinacao|join:', ' }}",{% endfor %}],
+            datasets: [{
+                label: 'Frequência de Trios',
+                data: [{% for item in combinacoes.probabilidades.combinacoes_3 %}{{ item.frequencia }},{% endfor %}],
+                backgroundColor: 'rgba(255, 159, 64, 0.6)',
+                probabilidades: [{% for item in combinacoes.probabilidades.combinacoes_3 %}{{ item.probabilidade }},{% endfor %}]
+            }]
+        },
+        options: { 
+            responsive: true, 
+            scales: { y: { beginAtZero: true } },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `Frequência: ${context.parsed.y}, Probabilidade: ${context.dataset.probabilidades[context.dataIndex]}%`;
+                        }
+                    }
+                }
+            }
+        }
     });
     {% endif %}
 });
