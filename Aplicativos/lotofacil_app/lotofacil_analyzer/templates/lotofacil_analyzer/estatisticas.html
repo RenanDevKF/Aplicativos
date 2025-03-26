@@ -1,4 +1,3 @@
-<!-- lotofacil_analyzer/templates/lotofacil_analyzer/estatisticas.html -->
 {% extends 'lotofacil_analyzer/base.html' %}
 
 {% load static %}
@@ -12,6 +11,16 @@
 <div class="statistics-container">
     <h1>Estatísticas da Lotofácil</h1>
     
+    <!-- Debug: Exibe dados recebidos -->
+    {% if debug %}
+    <div class="debug-info">
+        <h3>Dados Recebidos (Debug)</h3>
+        <pre>Frequência: {{ frequencia|pprint }}</pre>
+        <pre>Atraso: {{ atraso|pprint }}</pre>
+        <pre>Combinações: {{ combinacoes|pprint }}</pre>
+    </div>
+    {% endif %}
+    
     <!-- Abas de Navegação -->
     <ul class="statistics-tabs">
         <li class="tab-item active">
@@ -20,9 +29,10 @@
         <li class="tab-item">
             <a href="#atraso" class="tab-link">Atraso</a>
         </li>
-        <!-- Adicione mais abas aqui, se necessário -->
+        <li class="tab-item">
+            <a href="#combinacoes" class="tab-link">Combinações</a>
+        </li>
     </ul>
-    
 
     <!-- Conteúdo das Abas -->
     <div class="tab-content">
@@ -44,13 +54,19 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% for num, freq in frequencia.mais_frequentes %}
-                            <tr>
-                                <td>{{ num }}</td>
-                                <td>{{ freq }}</td>
-                                <td>{{ frequencia.percentuais|get_item:num|floatformat:2 }}%</td>
-                            </tr>
-                            {% endfor %}
+                            {% if frequencia.mais_frequentes %}
+                                {% for num, freq in frequencia.mais_frequentes %}
+                                <tr>
+                                    <td>{{ num }}</td>
+                                    <td>{{ freq }}</td>
+                                    <td>{{ frequencia.percentuais|get_item:num|floatformat:2 }}%</td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="3">Dados de frequência não disponíveis</td>
+                                </tr>
+                            {% endif %}
                         </tbody>
                     </table>
                 </div>
@@ -70,13 +86,19 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% for num, freq in frequencia.menos_frequentes %}
-                            <tr>
-                                <td>{{ num }}</td>
-                                <td>{{ freq }}</td>
-                                <td>{{ frequencia.percentuais|get_item:num|floatformat:2 }}%</td>
-                            </tr>
-                            {% endfor %}
+                            {% if frequencia.menos_frequentes %}
+                                {% for num, freq in frequencia.menos_frequentes %}
+                                <tr>
+                                    <td>{{ num }}</td>
+                                    <td>{{ freq }}</td>
+                                    <td>{{ frequencia.percentuais|get_item:num|floatformat:2 }}%</td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="3">Dados de frequência não disponíveis</td>
+                                </tr>
+                            {% endif %}
                         </tbody>
                     </table>
                 </div>
@@ -101,13 +123,23 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% for num, atraso in atraso.ranking_atrasos|slice:":5" %}
-                            <tr>
-                                <td>{{ num }}</td>
-                                <td>{{ atraso }}</td>
-                                <td>{{ atraso.estatisticas|get_item:num|get_item:"ultimo_sorteio" }}</td>
-                            </tr>
-                            {% endfor %}
+                            {% if atraso.ranking_atrasos %}
+                                {% for num, atraso_valor in atraso.ranking_atrasos|slice:":5" %}
+                                <tr>
+                                    <td>{{ num }}</td>
+                                    <td>{{ atraso_valor }}</td>
+                                    <td>
+                                        {% with estatistica=atraso.estatisticas|get_item:num %}
+                                            {{ estatistica.ultimo_sorteio|default:"Nunca" }}
+                                        {% endwith %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="3">Dados de atraso não disponíveis</td>
+                                </tr>
+                            {% endif %}
                         </tbody>
                     </table>
                 </div>
@@ -129,14 +161,95 @@
                                 {% for num in 25|range_filter %}
                                 <tr>
                                     <td>{{ num }}</td>
-                                    <td>{{ atraso.estatisticas|get_item:num|get_item:"atual" }}</td>
-                                    <td>{{ atraso.estatisticas|get_item:num|get_item:"maximo" }}</td>
-                                    <td>{{ atraso.estatisticas|get_item:num|get_item:"media"|floatformat:1 }}</td>
+                                    <td>
+                                        {% with estatistica=atraso.estatisticas|get_item:num %}
+                                            {{ estatistica.atual|default:"-" }}
+                                        {% endwith %}
+                                    </td>
+                                    <td>
+                                        {% with estatistica=atraso.estatisticas|get_item:num %}
+                                            {{ estatistica.maximo|default:"-" }}
+                                        {% endwith %}
+                                    </td>
+                                    <td>
+                                        {% with estatistica=atraso.estatisticas|get_item:num %}
+                                            {{ estatistica.media|floatformat:1|default:"-" }}
+                                        {% endwith %}
+                                    </td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
                         </table>
                     </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Nova Aba de Combinações -->
+        <div id="combinacoes" class="tab-pane">
+            <div class="statistics-grid">
+                <!-- Card: Combinações de 2 Números -->
+                <div class="statistic-card">
+                    <h2>Top 10 Pares de Números</h2>
+                    <div class="chart-container">
+                        <canvas id="chartCombinacoes2"></canvas>
+                    </div>
+                    <table class="statistics-table">
+                        <thead>
+                            <tr>
+                                <th>Combinação</th>
+                                <th>Frequência</th>
+                                <th>Probabilidade</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if combinacoes.probabilidades.combinacoes_2 %}
+                                {% for item in combinacoes.probabilidades.combinacoes_2 %}
+                                <tr>
+                                    <td>{{ item.combinacao|join:", " }}</td>
+                                    <td>{{ item.frequencia }}</td>
+                                    <td>{{ item.probabilidade }}%</td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="3">Dados de combinações não disponíveis</td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Card: Combinações de 3 Números -->
+                <div class="statistic-card">
+                    <h2>Top 10 Trios de Números</h2>
+                    <div class="chart-container">
+                        <canvas id="chartCombinacoes3"></canvas>
+                    </div>
+                    <table class="statistics-table">
+                        <thead>
+                            <tr>
+                                <th>Combinação</th>
+                                <th>Frequência</th>
+                                <th>Probabilidade</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if combinacoes.probabilidades.combinacoes_3 %}
+                                {% for item in combinacoes.probabilidades.combinacoes_3 %}
+                                <tr>
+                                    <td>{{ item.combinacao|join:", " }}</td>
+                                    <td>{{ item.frequencia }}</td>
+                                    <td>{{ item.probabilidade }}%</td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="3">Dados de combinações não disponíveis</td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -151,27 +264,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
     tabLinks.forEach(function(tabLink) {
         tabLink.addEventListener('click', function(event) {
-            event.preventDefault(); // Impede o comportamento padrão do link
-
-            // Remove a classe 'active' de todas as abas e painéis
-            tabLinks.forEach(function(link) {
-                link.parentElement.classList.remove('active');
-            });
-            tabPanes.forEach(function(pane) {
-                pane.classList.remove('active');
-            });
-
-            // Adiciona a classe 'active' à aba e ao painel clicado
-            const targetTab = this.getAttribute('href'); // Pega o valor do href (ex: #frequencia)
-            document.querySelector(targetTab).classList.add('active'); // Ativa o painel correspondente
-            this.parentElement.classList.add('active'); // Ativa a aba clicada
+            event.preventDefault();
+            tabLinks.forEach(link => link.parentElement.classList.remove('active'));
+            tabPanes.forEach(pane => pane.classList.remove('active'));
+            document.querySelector(this.getAttribute('href')).classList.add('active');
+            this.parentElement.classList.add('active');
         });
     });
 
-    // Código JavaScript para renderizar os gráficos utilizando Chart.js
+    // Gráficos apenas se existirem dados
+    {% if frequencia.mais_frequentes %}
     // Frequência - Mais Frequentes
-    var ctxFreqMais = document.getElementById('chartFrequenciaMais').getContext('2d');
-    var chartFreqMais = new Chart(ctxFreqMais, {
+    new Chart(document.getElementById('chartFrequenciaMais').getContext('2d'), {
         type: 'bar',
         data: {
             labels: [{% for num, _ in frequencia.mais_frequentes %}"{{ num }}",{% endfor %}],
@@ -181,19 +285,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 backgroundColor: 'rgba(54, 162, 235, 0.6)'
             }]
         },
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            }
-        }
+        options: { responsive: true, scales: { y: { beginAtZero: true } } }
     });
+    {% endif %}
     
+    {% if frequencia.menos_frequentes %}
     // Frequência - Menos Frequentes
-    var ctxFreqMenos = document.getElementById('chartFrequenciaMenos').getContext('2d');
-    var chartFreqMenos = new Chart(ctxFreqMenos, {
+    new Chart(document.getElementById('chartFrequenciaMenos').getContext('2d'), {
         type: 'bar',
         data: {
             labels: [{% for num, _ in frequencia.menos_frequentes %}"{{ num }}",{% endfor %}],
@@ -203,19 +301,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 backgroundColor: 'rgba(255, 99, 132, 0.6)'
             }]
         },
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            }
-        }
+        options: { responsive: true, scales: { y: { beginAtZero: true } } }
     });
+    {% endif %}
     
+    {% if atraso.ranking_atrasos %}
     // Atraso - Maior Atraso
-    var ctxAtrasoMaior = document.getElementById('chartAtrasoMaior').getContext('2d');
-    var chartAtrasoMaior = new Chart(ctxAtrasoMaior, {
+    new Chart(document.getElementById('chartAtrasoMaior').getContext('2d'), {
         type: 'bar',
         data: {
             labels: [{% for num, _ in atraso.ranking_atrasos|slice:":5" %}"{{ num }}",{% endfor %}],
@@ -225,15 +317,67 @@ document.addEventListener('DOMContentLoaded', function() {
                 backgroundColor: 'rgba(255, 159, 64, 0.6)'
             }]
         },
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: true
+        options: { responsive: true, scales: { y: { beginAtZero: true } } }
+    });
+    {% endif %}
+
+    // Novo gráfico para Combinações de 2 Números
+    {% if combinacoes.probabilidades.combinacoes_2 %}
+    new Chart(document.getElementById('chartCombinacoes2').getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: [{% for item in combinacoes.probabilidades.combinacoes_2 %}"{{ item.combinacao|join:', ' }}",{% endfor %}],
+            datasets: [{
+                label: 'Frequência de Pares',
+                data: [{% for item in combinacoes.probabilidades.combinacoes_2 %}{{ item.frequencia }},{% endfor %}],
+                backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                probabilidades: [{% for item in combinacoes.probabilidades.combinacoes_2 %}{{ item.probabilidade }},{% endfor %}]
+            }]
+        },
+        options: { 
+            responsive: true, 
+            scales: { y: { beginAtZero: true } },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `Frequência: ${context.parsed.y}, Probabilidade: ${context.dataset.probabilidades[context.dataIndex]}%`;
+                        }
+                    }
                 }
             }
         }
     });
+    {% endif %}
+
+    // Novo gráfico para Combinações de 3 Números
+    {% if combinacoes.probabilidades.combinacoes_3 %}
+    new Chart(document.getElementById('chartCombinacoes3').getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: [{% for item in combinacoes.probabilidades.combinacoes_3 %}"{{ item.combinacao|join:', ' }}",{% endfor %}],
+            datasets: [{
+                label: 'Frequência de Trios',
+                data: [{% for item in combinacoes.probabilidades.combinacoes_3 %}{{ item.frequencia }},{% endfor %}],
+                backgroundColor: 'rgba(255, 159, 64, 0.6)',
+                probabilidades: [{% for item in combinacoes.probabilidades.combinacoes_3 %}{{ item.probabilidade }},{% endfor %}]
+            }]
+        },
+        options: { 
+            responsive: true, 
+            scales: { y: { beginAtZero: true } },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `Frequência: ${context.parsed.y}, Probabilidade: ${context.dataset.probabilidades[context.dataIndex]}%`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+    {% endif %}
 });
 </script>
 {% endblock %}

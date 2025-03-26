@@ -9,6 +9,7 @@ from lotofacil_analyzer.data.processor import LotofacilDataImporter
 from .analyzers.frequency import AnalisadorFrequencia
 from .analyzers.gap import AnalisadorAtraso
 from pathlib import Path
+from .analyzers.combinations import AnalisadorCombinacoes
 import json
 import requests
 import logging
@@ -70,6 +71,11 @@ def estatisticas(request):
         resultados_atraso = analisador_atraso.analisar()
         logger.info("Análise de atraso concluída.")
         
+        analisador_combinacoes = AnalisadorCombinacoes(df=df)
+        resultados_combinacoes = analisador_combinacoes.analisar()
+        probabilidades_combinacoes = analisador_combinacoes.calcular_probabilidades()
+        logger.info("Análise de combinções concluída.")
+        
         # Debug: Exibe os resultados no console
         print("Resultados Frequência:", resultados_frequencia)
         print("Resultados Atraso:", resultados_atraso)
@@ -78,6 +84,10 @@ def estatisticas(request):
         context = {
             'frequencia': resultados_frequencia,
             'atraso': resultados_atraso,
+            'combinacoes': {
+                'resultados': resultados_combinacoes,
+                'probabilidades': probabilidades_combinacoes
+            }
         }
         return render(request, 'lotofacil_analyzer/estatisticas.html', context)
     
